@@ -173,8 +173,11 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
         <option value="khr">🏢 Al-Khairan Men Branch</option>
         <option value="all">📊 All Branches (Combined)</option>
       </select>
-      <button class="btn" style="background:#1C2B1E;color:#fff;border-color:#1C2B1E" onclick="exportData()">&#11015; Export</button>
-      <button class="btn btg" onclick="importData()">&#11014; Import</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn" style="background:#1C2B1E;color:#fff;border-color:#1C2B1E;font-size:12px" onclick="exportData()">&#11015; This Branch</button>
+        <button class="btn" style="background:#2D4A2D;color:#fff;border-color:#2D4A2D;font-size:12px" onclick="exportAllBranches()">&#11015; All Branches</button>
+        <button class="btn btg" style="font-size:12px" onclick="importData()">&#11014; Import</button>
+      </div>
     </div>
   </div>
   <div id="content">
@@ -1780,8 +1783,56 @@ function xExport(){
   const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<!-- iXBRL Kuwait MoCI -->\n<xbrl xmlns="http://www.xbrl.org/2003/instance" xmlns:kw="http://xbrl.moc.gov.kw/taxonomy/2024">\n  <context id="P"><entity><identifier scheme="http://moc.gov.kw">${e.civil||"SPA"}</identifier></entity><period><startDate>${e.start||"2025-01-01"}</startDate><endDate>${e.end||"2025-12-31"}</endDate></period></context>\n  <kw:EntityName contextRef="P">${e.en||"Signature SPA Men"}</kw:EntityName>\n  <kw:ServiceRevenue contextRef="P" unitRef="KWD" decimals="3">${rev.toFixed(3)}</kw:ServiceRevenue>\n</xbrl>`;
   const b=new Blob([xml],{type:"application/xml"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="SignatureSPA_XBRL.xbrl";a.click();
 }
-function exportData(){const b=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="spa_backup.json";a.click();}
-function importData(){const i=document.createElement("input");i.type="file";i.accept=".json";i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{S=JSON.parse(ev.target.result);sv();location.reload();}catch(e){alert("Invalid file");}};r.readAsText(f);};i.click();}
+function exportData(){
+  // Save current state first
+  sv();
+  const b=BRANCHES.find(b=>b.id===curBranch);
+  const filename=b?b.short.replace(/\s+/g,"-").toLowerCase()+"-backup.json":"spa-backup.json";
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();
+}
+function exportAllBranches(){
+  // Save current branch first
+  sv();
+  // Load all branches fresh and package them
+  loadAllBranches();
+  const pkg={version:2,exported:new Date().toISOString(),branches:{}};
+  BRANCHES.forEach(b=>{ pkg.branches[b.id]=BD[b.id]||_emptyState(); });
+  const blob=new Blob([JSON.stringify(pkg,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="signature-spa-all-branches-backup.json";a.click();
+}
+function importData(){
+  const inp=document.createElement("input");inp.type="file";inp.accept=".json";
+  inp.onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      try{
+        const parsed=JSON.parse(ev.target.result);
+        // Detect all-branches backup (has version + branches keys)
+        if(parsed.version===2 && parsed.branches){
+          if(!confirm("This is an All Branches backup.\nRestore all 3 branches? This will overwrite all current data.")) return;
+          BRANCHES.forEach(b=>{
+            if(parsed.branches[b.id]){
+              localStorage.setItem(b.key, JSON.stringify(parsed.branches[b.id]));
+            }
+          });
+          loadAllBranches();
+          S=_emptyState(); ld();
+          alert("All branches restored successfully.");
+          location.reload();
+        } else {
+          // Single-branch backup
+          const b=BRANCHES.find(b=>b.id===curBranch);
+          if(!confirm("Restore backup for "+( b?b.name:"current branch")+"?\nThis will overwrite current branch data.")) return;
+          S=parsed; sv(); location.reload();
+        }
+      }catch(err){alert("Invalid backup file.");}
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
 
 
 
