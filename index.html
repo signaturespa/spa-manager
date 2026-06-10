@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Signature SPA Men — Manager</title>
+<title>Signature SPA — Manager</title>
 <style>
 :root{--cream:#F5F2EC;--sf:#FFF;--bd:rgba(0,0,0,.10);--bd2:rgba(0,0,0,.18);--tx:#1A1A1A;--mu:#6B6760;--sb:#0A0A0A;--sbt:#F0E6D0;--sbm:#8A7650;--gold:#C9A84C;--gold-d:#A07830;--gold-l:#F5EDD9;--gn:#1E7A4A;--gnl:#E8F5EE;--gnt:#166038;--rd:#C0392B;--rdl:#FDECEB;--am:#9A6500;--aml:#FEF3CD;--bl:#1A5F9E;--bll:#E6EEF8;--r:10px;--rs:6px;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -149,6 +149,10 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
   <div class="sb-item" data-pg="threp">&#129489; Therapist Reports</div>
   <div class="sb-item" data-pg="invoices">&#129534; Invoices</div>
   <div class="sb-item" data-pg="inventory">&#128230; Inventory</div>
+  <div class="sb-sec">Combined View</div>
+  <div class="sb-item" data-pg="all-dash">&#128202; All Branches</div>
+  <div class="sb-item" data-pg="all-monthly">&#128197; Combined Monthly</div>
+  <div class="sb-item" data-pg="all-daily">&#128198; Combined Daily</div>
   <div class="sb-sec">Financial</div>
   <div class="sb-item" data-pg="balance">&#9878;&#65039; Balance Sheet</div>
   <div class="sb-item" data-pg="reports">&#128202; Reports &amp; Export</div>
@@ -158,7 +162,17 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 <div id="main">
   <div id="topbar">
     <div class="tbl"><h1 id="pgt">Dashboard</h1><p id="pgs">Signature SPA Men &mdash; business overview</p></div>
-    <div class="tbr">
+    <div class="tbr" style="gap:10px">
+      <div id="branch-badge" style="display:flex;align-items:center;gap:8px">
+        <span id="branch-dot" style="width:10px;height:10px;border-radius:50%;background:#C9A84C;display:inline-block;flex-shrink:0"></span>
+        <span id="branch-name-lbl" style="font-size:12px;font-weight:600;color:var(--tx)">Select Branch</span>
+      </div>
+      <select id="branch-sel" onchange="switchBranch(this.value)" style="padding:6px 12px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px;font-weight:500;background:#fff;cursor:pointer">
+        <option value="ahm">🏢 Alhambra Mall Men</option>
+        <option value="ahw">🏢 Alhambra Mall Women</option>
+        <option value="khr">🏢 Khairan Mall Men</option>
+        <option value="all">📊 All Branches (Combined)</option>
+      </select>
       <button class="btn" style="background:#1C2B1E;color:#fff;border-color:#1C2B1E" onclick="exportData()">&#11015; Export</button>
       <button class="btn btg" onclick="importData()">&#11014; Import</button>
     </div>
@@ -169,7 +183,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 <div class="page active" id="page-dashboard">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding:18px 24px;background:#fff;border-radius:12px;border:.5px solid var(--bd);box-shadow:0 1px 4px rgba(0,0,0,.06)">
     <img src="data:image/png;base64,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" alt="Signature SPA" style="height:54px;width:auto">
-    <div style="text-align:right"><div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--mu);margin-bottom:3px">Management System</div><div style="font-size:13px;font-weight:600;color:var(--tx)">Signature SPA Men</div><div style="font-size:11px;color:var(--mu)">Kuwait</div></div>
+    <div style="text-align:right"><div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--mu);margin-bottom:3px">Management System</div><div id="hero-branch-name" style="font-size:13px;font-weight:600;color:var(--tx)">Signature SPA</div><div style="font-size:11px;color:var(--mu)">Kuwait</div></div>
   </div>
   <div class="fcr">
     <div class="fc active" data-df="all">All time</div>
@@ -203,6 +217,88 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
     <div class="cc"><div class="ct">EXPENSES BREAKDOWN</div><div id="d-bd"></div></div>
   </div>
   <div class="ac"><div class="at">RECENT ACTIVITY</div><div id="d-ac"></div></div>
+</div>
+
+
+<!-- COMBINED ALL BRANCHES -->
+<div class="page" id="page-all-dash">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding:18px 24px;background:#fff;border-radius:12px;border:.5px solid var(--bd);box-shadow:0 1px 4px rgba(0,0,0,.06)">
+    <img src="" alt="Signature SPA" id="comb-logo" style="height:54px;width:auto">
+    <div style="text-align:right"><div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--mu);margin-bottom:3px">All Branches — Combined</div><div style="font-size:13px;font-weight:600;color:var(--tx)">Signature SPA</div><div style="font-size:11px;color:var(--mu)">Kuwait</div></div>
+  </div>
+  <div class="fcr" style="margin-bottom:16px">
+    <div class="fc active" data-cf="all">All time</div>
+    <div class="fc" data-cf="month" id="cdf-m">This month</div>
+    <div class="fc" data-cf="prev">Last month</div>
+  </div>
+  <div class="hero" style="margin-bottom:16px">
+    <div class="hl"><div class="hlb">&#128200; COMBINED NET PROFIT</div><div class="hv" id="cd-pr">KWD 0.000</div><div class="hs" id="cd-ps">Margin 0% | Income: KWD 0.000</div></div>
+    <div class="hr"><div class="hlb">&#129534; TOTAL INVOICES</div><div class="hv" id="cd-inv" style="font-size:22px">0</div></div>
+  </div>
+  <!-- Per-branch cards -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px" id="cd-branch-cards"></div>
+  <!-- KPI grid -->
+  <div class="mg" style="margin-bottom:20px">
+    <div class="mc"><div class="ml">&#128176; TOTAL INCOME</div><div class="mv vg" id="cd-inc">KWD 0.000</div></div>
+    <div class="mc"><div class="ml">&#128228; TOTAL EXPENSES</div><div class="mv vr" id="cd-exp">KWD 0.000</div></div>
+    <div class="mc"><div class="ml">&#9203; PENDING</div><div class="mv va" id="cd-pend">KWD 0.000</div></div>
+    <div class="mc"><div class="ml">&#127968; RENT (ALL)</div><div class="mv" id="cd-rent">KWD 0.000</div></div>
+    <div class="mc"><div class="ml">&#128188; SALARIES (ALL)</div><div class="mv" id="cd-sal">KWD 0.000</div></div>
+    <div class="mc"><div class="ml">&#129534; INVOICES</div><div class="mv vd" id="cd-invcount">0</div></div>
+  </div>
+  <!-- 6-month chart -->
+  <div class="cc" style="margin-bottom:16px">
+    <div class="ct">6-MONTH REVENUE TREND — ALL BRANCHES</div>
+    <div style="display:flex;align-items:flex-end;gap:6px;height:100px" id="cd-chart"></div>
+    <div style="display:flex;gap:6px;margin-top:6px" id="cd-chart-labels"></div>
+  </div>
+  <!-- Recent invoices across all branches -->
+  <div class="tc">
+    <div class="tch"><span style="font-size:13px;font-weight:600">Recent Invoices — All Branches</span></div>
+    <div class="tw"><table>
+      <thead><tr><th>Branch</th><th>Invoice #</th><th>Client</th><th>Services</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody id="cd-inv-tb"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<div class="page" id="page-all-monthly">
+  <div class="ph">
+    <div class="phl"><h2>Combined Monthly Report</h2><p>All branches — aggregated view</p></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn bts" onclick="cmNav(-1)">&#8249;</button>
+      <span id="cm-lbl" style="font-size:14px;font-weight:600;min-width:110px;text-align:center"></span>
+      <button class="btn bts" onclick="cmNav(1)">&#8250;</button>
+    </div>
+  </div>
+  <div class="mg" style="margin-bottom:18px">
+    <div class="mc"><div class="ml">TOTAL INCOME</div><div class="mv vg" id="cm-inc">KWD 0.000</div></div>
+    <div class="mc"><div class="ml">TOTAL EXPENSES</div><div class="mv vr" id="cm-exp">KWD 0.000</div></div>
+    <div class="mc"><div class="ml">NET PROFIT</div><div class="mv vg" id="cm-pr">KWD 0.000</div></div>
+    <div class="mc"><div class="ml">INVOICES</div><div class="mv vd" id="cm-inv">0</div></div>
+  </div>
+  <!-- Per-branch monthly breakdown -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" id="cm-branch-cards"></div>
+</div>
+
+<div class="page" id="page-all-daily">
+  <div class="ph">
+    <div class="phl"><h2>Combined Daily Report</h2><p id="cd-daily-sub"></p></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn bts" onclick="cdNav(-1)">&#8249;</button>
+      <span id="cd-lbl" style="font-size:14px;font-weight:600;min-width:130px;text-align:center"></span>
+      <button class="btn bts" onclick="cdNav(1)">&#8250;</button>
+      <button class="btn bts btg" onclick="cdToday()">Today</button>
+    </div>
+  </div>
+  <div class="hero" style="margin-bottom:14px">
+    <div class="hl"><div class="hlb">&#128200; DAY REVENUE — ALL BRANCHES</div><div class="hv" id="cday-rev">KWD 0.000</div><div class="hs" id="cday-sub">0 invoices across all branches</div></div>
+    <div class="hr"><div class="hlb">&#128181; CASH / CARD</div>
+      <div class="hcl"><span class="dot dg"></span>Cash: <span id="cday-cash">KWD 0.000</span></div>
+      <div class="hcl"><span class="dot dr2"></span>Card: <span id="cday-card">KWD 0.000</span></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" id="cday-branch-cards"></div>
 </div>
 
 <!-- DAILY REPORT -->
@@ -701,6 +797,309 @@ const EC={consumables:"Consumables",tools:"Tools",machines:"Machines",laundry:"L
 let S={invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{}};
 function sv(){try{localStorage.setItem("spa_mg2",JSON.stringify(S));}catch(e){}}
 function ld(){try{const d=localStorage.getItem("spa_mg2");if(d)S=JSON.parse(d);}catch(e){}}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MULTI-BRANCH ARCHITECTURE
+// ═══════════════════════════════════════════════════════════════════════════════
+const BRANCHES = [
+  {id:"ahm", name:"Alhambra Mall Men",   short:"Alhambra Men",   key:"spa_ahm_v1", color:"#1C3A5A"},
+  {id:"ahw", name:"Alhambra Mall Women", short:"Alhambra Women", key:"spa_ahw_v1", color:"#5A1C3A"},
+  {id:"khr", name:"Khairan Mall Men",    short:"Khairan Men",    key:"spa_khr_v1", color:"#1A5A28"},
+];
+const COMBINED_ID = "all";
+let curBranch = localStorage.getItem("spa_cur_branch") || "ahm";
+
+// Load all branches' data into memory
+const BD = {}; // BD[branchId] = S-like object
+function loadAllBranches(){
+  BRANCHES.forEach(b=>{
+    try{
+      const d=localStorage.getItem(b.key);
+      BD[b.id]=d?JSON.parse(d):{invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{},inventory:{consumables:[],tools:[],hospitality:[]},dailyNotes:{}};
+    }catch(e){
+      BD[b.id]={invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{},inventory:{consumables:[],tools:[],hospitality:[]},dailyNotes:{}};
+    }
+  });
+}
+
+// sv/ld now branch-aware
+function sv(){
+  try{
+    if(curBranch!==COMBINED_ID){
+      const b=BRANCHES.find(b=>b.id===curBranch);
+      if(b){localStorage.setItem(b.key,JSON.stringify(S));BD[curBranch]=JSON.parse(JSON.stringify(S));}
+    }
+  }catch(e){}
+}
+function ld(){
+  try{
+    if(curBranch!==COMBINED_ID){
+      const b=BRANCHES.find(b=>b.id===curBranch);
+      if(b){const d=localStorage.getItem(b.key);if(d)S=JSON.parse(d);}
+    }
+  }catch(e){}
+}
+
+function switchBranch(bid){
+  curBranch=bid;
+  localStorage.setItem("spa_cur_branch",bid);
+  loadAllBranches();
+  if(bid!==COMBINED_ID){
+    ld();
+    updateBranchUI();
+    // Show all normal pages, hide combined pages
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".sb-item").forEach(n=>n.classList.remove("active"));
+    const dashItem=document.querySelector('[data-pg="dashboard"]');
+    if(dashItem)dashItem.classList.add("active");
+    document.getElementById("page-dashboard").classList.add("active");
+    const m=pgM["dashboard"]||{};
+    document.getElementById("pgt").textContent=m.t||"Dashboard";
+    document.getElementById("pgs").textContent=m.s||"";
+    rDash();
+  } else {
+    updateBranchUI();
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".sb-item").forEach(n=>n.classList.remove("active"));
+    const allItem=document.querySelector('[data-pg="all-dash"]');
+    if(allItem)allItem.classList.add("active");
+    document.getElementById("page-all-dash").classList.add("active");
+    document.getElementById("pgt").textContent="All Branches";
+    document.getElementById("pgs").textContent="Combined overview";
+    rCombDash();
+  }
+}
+
+function updateBranchUI(){
+  const sel=document.getElementById("branch-sel");
+  if(sel) sel.value=curBranch;
+  const b=BRANCHES.find(b=>b.id===curBranch);
+  const lbl=document.getElementById("branch-name-lbl");
+  const dot=document.getElementById("branch-dot");
+  const sbLbl=document.getElementById("sb-branch-label");
+  const heroName=document.getElementById("hero-branch-name");
+  if(b){
+    if(lbl) lbl.textContent=b.name;
+    if(dot) dot.style.background=b.color;
+    if(sbLbl) sbLbl.textContent=b.short.toUpperCase();
+    if(heroName) heroName.textContent=b.name;
+    document.title=b.name+" — Manager";
+  } else {
+    if(lbl) lbl.textContent="All Branches";
+    if(dot) dot.style.background="#C9A84C";
+    if(sbLbl) sbLbl.textContent="ALL BRANCHES";
+    if(heroName) heroName.textContent="All Branches";
+    document.title="All Branches — Manager";
+  }
+}
+
+// ─── Helper: get all invoices/expenses across all branches ─────────────────────
+function getAllInvoices(filter){
+  const all=[];
+  BRANCHES.forEach(b=>{
+    (BD[b.id]?.invoices||[]).forEach(inv=>{
+      all.push({...inv,_branch:b.id,_branchName:b.short,_branchColor:b.color});
+    });
+  });
+  return filter?all.filter(filter):all;
+}
+function getAllExpenses(filter){
+  const all=[];
+  BRANCHES.forEach(b=>{
+    (BD[b.id]?.expenses||[]).forEach(exp=>{
+      all.push({...exp,_branch:b.id,_branchName:b.short});
+    });
+  });
+  return filter?all.filter(filter):all;
+}
+function getAllRent(filter){
+  const all=[];
+  BRANCHES.forEach(b=>{
+    (BD[b.id]?.rent||[]).forEach(r=>{
+      all.push({...r,_branch:b.id});
+    });
+  });
+  return filter?all.filter(filter):all;
+}
+function getAllSalaries(filter){
+  const all=[];
+  BRANCHES.forEach(b=>{
+    (BD[b.id]?.salaries||[]).forEach(s=>{
+      all.push({...s,_branch:b.id});
+    });
+  });
+  return filter?all.filter(filter):all;
+}
+
+// ─── COMBINED DASHBOARD ─────────────────────────────────────────────────────────
+let combDF="all";
+function rCombDash(){
+  // Filter chips
+  document.querySelectorAll("[data-cf]").forEach(el=>{
+    el.classList.toggle("active",el.dataset.cf===combDF);
+    el.onclick=()=>{combDF=el.dataset.cf;rCombDash();};
+  });
+  const cm=nym(), pm=pym();
+  const filt = combDF==="month"?i=>gm(i.date)===cm : combDF==="prev"?i=>gm(i.date)===pm : ()=>true;
+  const allInvs=getAllInvoices(filt);
+  const allExps=getAllExpenses(combDF==="month"?e=>gm(e.date)===cm:combDF==="prev"?e=>gm(e.date)===pm:()=>true);
+  const allRent=getAllRent(combDF==="month"?r=>(r.month||gm(r.date||""))===cm:combDF==="prev"?r=>(r.month||gm(r.date||""))===pm:()=>true);
+  const allSal=getAllSalaries(combDF==="month"?s=>s.month===cm:combDF==="prev"?s=>s.month===pm:()=>true);
+  const paid=allInvs.filter(i=>i.status==="paid");
+  const pend=allInvs.filter(i=>i.status!=="paid");
+  const inc=sa(paid);
+  const exp=sa(allExps)+sa(allRent)+sa(allSal);
+  const profit=inc-exp;
+  const margin=inc>0?Math.round((profit/inc)*100):0;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set("cd-pr",fk(profit));
+  set("cd-ps","Margin "+margin+"% | Income: "+fk(inc));
+  set("cd-inv",allInvs.length);
+  set("cd-inc",fk(inc));
+  set("cd-exp",fk(exp));
+  set("cd-pend",fk(sa(pend)));
+  set("cd-rent",fk(sa(allRent)));
+  set("cd-sal",fk(sa(allSal)));
+  set("cd-invcount",allInvs.length);
+  // Per-branch cards
+  const bcEl=document.getElementById("cd-branch-cards");
+  if(bcEl) bcEl.innerHTML=BRANCHES.map(b=>{
+    const bInvs=(BD[b.id]?.invoices||[]).filter(filt);
+    const bPaid=bInvs.filter(i=>i.status==="paid");
+    const bExps=(BD[b.id]?.expenses||[]).filter(combDF==="month"?e=>gm(e.date)===cm:combDF==="prev"?e=>gm(e.date)===pm:()=>true);
+    const bRent=(BD[b.id]?.rent||[]).filter(combDF==="month"?r=>(r.month||gm(r.date||""))===cm:combDF==="prev"?r=>(r.month||gm(r.date||""))===pm:()=>true);
+    const bSal=(BD[b.id]?.salaries||[]).filter(combDF==="month"?s=>s.month===cm:combDF==="prev"?s=>s.month===pm:()=>true);
+    const bInc=sa(bPaid);
+    const bExp=sa(bExps)+sa(bRent)+sa(bSal);
+    const bProfit=bInc-bExp;
+    return `<div class="cc" style="border-top:3px solid ${b.color};cursor:pointer" onclick="switchBranch('${b.id}')">
+      <div style="font-size:12px;font-weight:700;color:${b.color};margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">${b.short}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Income</div><div style="font-size:15px;font-weight:700;color:var(--gn)">${fk(bInc)}</div></div>
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Expenses</div><div style="font-size:15px;font-weight:700;color:var(--rd)">${fk(bExp)}</div></div>
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Net Profit</div><div style="font-size:15px;font-weight:700;color:${bProfit>=0?"var(--gn)":"var(--rd)"}">${fk(bProfit)}</div></div>
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Invoices</div><div style="font-size:15px;font-weight:700">${bInvs.length}</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--mu);margin-top:8px;text-align:right">Click to manage →</div>
+    </div>`;
+  }).join("");
+  // 6-month chart
+  const months=[];
+  for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);months.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));}
+  const mIncs=months.map(m=>sa(getAllInvoices(i=>gm(i.date)===m&&i.status==="paid")));
+  const mExps=months.map(m=>sa(getAllExpenses(e=>gm(e.date)===m))+sa(getAllRent(r=>(r.month||gm(r.date||""))===m))+sa(getAllSalaries(s=>s.month===m)));
+  const maxV=Math.max(...mIncs,...mExps,1);
+  const cEl=document.getElementById("cd-chart");
+  const lEl=document.getElementById("cd-chart-labels");
+  const MNF2=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  if(cEl) cEl.innerHTML=months.map((_,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;justify-content:flex-end;height:100px"><div style="width:100%;background:#1E7A4A;border-radius:3px 3px 0 0;height:${Math.max(4,Math.round((mIncs[i]/maxV)*90))}px"></div><div style="width:100%;background:#C0392B;border-radius:3px 3px 0 0;height:${Math.max(2,Math.round((mExps[i]/maxV)*90))}px;opacity:.7"></div></div>`).join("");
+  if(lEl) lEl.innerHTML=months.map(m=>`<span style="flex:1;text-align:center;font-size:9px;color:var(--mu)">${MNF2[parseInt(m.split("-")[1])-1]}</span>`).join("");
+  // Recent invoices
+  const tb=document.getElementById("cd-inv-tb");
+  if(tb){
+    const recent=getAllInvoices().slice().sort((a,b)=>b.id-a.id).slice(0,10);
+    if(!recent.length){tb.innerHTML='<tr><td colspan="7" class="em">No invoices yet</td></tr>';return;}
+    tb.innerHTML=recent.map(v=>`<tr>
+      <td><span style="font-size:11px;font-weight:600;color:${v._branchColor};background:${v._branchColor}18;padding:2px 6px;border-radius:4px">${v._branchName}</span></td>
+      <td style="font-size:12px;font-weight:600">${v.invNum||"#"+String(v.id).slice(-4)}</td>
+      <td>${v.clientName||"—"}</td>
+      <td style="font-size:12px">${(v.services||[]).map(s=>s.name).join(", ")||"—"}</td>
+      <td class="ag">${fk(v.amount)}</td>
+      <td>${fd(v.date)}</td>
+      <td><span class="badge ${v.status==="paid"?"bdgg":v.status==="pending"?"bdam":"bdrr"}">${v.status}</span></td>
+    </tr>`).join("");
+  }
+}
+
+// ─── COMBINED MONTHLY ────────────────────────────────────────────────────────────
+let cmD=new Date();
+function cmNav(d){cmD=new Date(cmD.getFullYear(),cmD.getMonth()+d,1);rCombMon();}
+function rCombMon(){
+  const ym=cmD.getFullYear()+"-"+String(cmD.getMonth()+1).padStart(2,"0");
+  const MNF2=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById("cm-lbl").textContent=MNF2[cmD.getMonth()]+" "+cmD.getFullYear();
+  const allInvs=getAllInvoices(i=>gm(i.date)===ym);
+  const allExps=getAllExpenses(e=>gm(e.date)===ym);
+  const allRent=getAllRent(r=>(r.month||gm(r.date||""))===ym);
+  const allSal=getAllSalaries(s=>s.month===ym);
+  const inc=sa(allInvs.filter(i=>i.status==="paid"));
+  const exp=sa(allExps)+sa(allRent)+sa(allSal);
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set("cm-inc",fk(inc));
+  set("cm-exp",fk(exp));
+  set("cm-pr",fk(inc-exp));
+  set("cm-inv",allInvs.length);
+  const bcEl=document.getElementById("cm-branch-cards");
+  if(bcEl) bcEl.innerHTML=BRANCHES.map(b=>{
+    const bInvs=(BD[b.id]?.invoices||[]).filter(i=>gm(i.date)===ym);
+    const bPaid=bInvs.filter(i=>i.status==="paid");
+    const bExps=(BD[b.id]?.expenses||[]).filter(e=>gm(e.date)===ym);
+    const bRent=(BD[b.id]?.rent||[]).filter(r=>(r.month||gm(r.date||""))===ym);
+    const bSal=(BD[b.id]?.salaries||[]).filter(s=>s.month===ym);
+    const bInc=sa(bPaid),bExp=sa(bExps)+sa(bRent)+sa(bSal),bProfit=bInc-bExp;
+    const days30=bInc/30;
+    return `<div class="cc" style="border-top:3px solid ${b.color}">
+      <div style="font-size:12px;font-weight:700;color:${b.color};margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;display:flex;justify-content:space-between;align-items:center">
+        <span>${b.short}</span><button class="btn bts" style="font-size:10px;padding:3px 8px" onclick="switchBranch('${b.id}')">Open →</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Income</div><div style="font-size:16px;font-weight:700;color:var(--gn)">${fk(bInc)}</div></div>
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Expenses</div><div style="font-size:16px;font-weight:700;color:var(--rd)">${fk(bExp)}</div></div>
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Net Profit</div><div style="font-size:16px;font-weight:700;color:${bProfit>=0?"var(--gn)":"var(--rd)"}">${fk(bProfit)}</div></div>
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Invoices</div><div style="font-size:16px;font-weight:700">${bInvs.length}</div></div>
+      </div>
+      <div style="font-size:11px;color:var(--mu);padding-top:10px;border-top:.5px solid var(--bd)">Daily avg income: <strong style="color:var(--tx)">${fk(days30)}</strong></div>
+    </div>`;
+  }).join("");
+}
+
+// ─── COMBINED DAILY ─────────────────────────────────────────────────────────────
+let cdayD=new Date();
+function cdToday(){cdayD=new Date();rCombDaily();}
+function cdNav(d){cdayD=new Date(cdayD.getFullYear(),cdayD.getMonth(),cdayD.getDate()+d);rCombDaily();}
+function rCombDaily(){
+  const yr=cdayD.getFullYear(),mo=cdayD.getMonth(),dy=cdayD.getDate();
+  const dateStr=yr+"-"+String(mo+1).padStart(2,"0")+"-"+String(dy).padStart(2,"0");
+  const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const MNF2=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById("cd-lbl").textContent=days[cdayD.getDay()]+", "+dy+" "+MNF2[mo]+" "+yr;
+  document.getElementById("cd-daily-sub").textContent=dateStr===td()?"Live — Today":fd(dateStr);
+  const dayInvs=getAllInvoices(i=>i.date===dateStr);
+  const paid=dayInvs.filter(i=>i.status==="paid");
+  const rev=sa(paid);
+  const cash=sa(paid.filter(i=>i.payment==="cash"));
+  const card=sa(paid.filter(i=>i.payment==="card"));
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set("cday-rev",fk(rev));
+  set("cday-sub",dayInvs.length+" invoices · "+paid.length+" paid");
+  set("cday-cash",fk(cash));
+  set("cday-card",fk(card));
+  const bcEl=document.getElementById("cday-branch-cards");
+  if(bcEl) bcEl.innerHTML=BRANCHES.map(b=>{
+    const bInvs=(BD[b.id]?.invoices||[]).filter(i=>i.date===dateStr);
+    const bPaid=bInvs.filter(i=>i.status==="paid");
+    const bExps=(BD[b.id]?.expenses||[]).filter(e=>e.date===dateStr);
+    const bRev=sa(bPaid),bExp=sa(bExps);
+    const bCash=sa(bPaid.filter(i=>i.payment==="cash"));
+    const bCard=sa(bPaid.filter(i=>i.payment==="card"));
+    const svcs=[...new Set(bInvs.flatMap(i=>(i.services||[]).map(s=>s.name)))];
+    return `<div class="cc" style="border-top:3px solid ${b.color}">
+      <div style="font-size:12px;font-weight:700;color:${b.color};margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;display:flex;justify-content:space-between;align-items:center">
+        <span>${b.short}</span><button class="btn bts" style="font-size:10px;padding:3px 8px" onclick="switchBranch('${b.id}')">Open →</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Revenue</div><div style="font-size:16px;font-weight:700;color:var(--gn)">${fk(bRev)}</div></div>
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Invoices</div><div style="font-size:16px;font-weight:700">${bInvs.length}</div></div>
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Cash</div><div style="font-size:13px;font-weight:600;color:var(--gnt)">${fk(bCash)}</div></div>
+        <div><div style="font-size:10px;color:var(--mu);text-transform:uppercase">Card</div><div style="font-size:13px;font-weight:600;color:var(--bl)">${fk(bCard)}</div></div>
+      </div>
+      ${bExps>0?`<div style="font-size:11px;color:var(--rd);margin-bottom:6px">Expenses: ${fk(bExp)}</div>`:""}
+      ${svcs.length?`<div style="font-size:10px;color:var(--mu)">${svcs.slice(0,3).join(" · ")+(svcs.length>3?" +more":"")}</div>`:"<div style='font-size:11px;color:var(--mu);font-style:italic'>No activity</div>"}
+    </div>`;
+  }).join("");
+}
+// ═══════════════════════════════════════════════════════════════════════════════
+
 function td(){return new Date().toISOString().split("T")[0];}
 function fk(n){return "KWD "+(parseFloat(n)||0).toFixed(3);}
 function fd(d){if(!d)return "---";try{const dt=new Date(d+"T00:00:00");return dt.getDate()+" "+MN[dt.getMonth()]+" "+dt.getFullYear();}catch(e){return d;}}
@@ -715,7 +1114,7 @@ document.querySelectorAll(".mo").forEach(m=>m.addEventListener("click",e=>{if(e.
 let dFn=null;
 document.getElementById("del-btn").onclick=()=>{if(dFn){dFn();dFn=null;}closeM("del-m");};
 function cfDel(fn){dFn=fn;openM("del-m");}
-const pgM={dashboard:{t:"Dashboard",s:"Signature SPA Men — business overview"},monthly:{t:"Monthly Report",s:""},daily:{t:"Daily Report",s:""},rent:{t:"Rent & Salaries",s:""},expenses:{t:"Expenses",s:"Shared — not for specific client"},threp:{t:"Therapist Reports",s:"Monthly job assignments & performance"},invoices:{t:"Invoices",s:""},inventory:{t:"Inventory",s:"Consumables · Tools · Hospitality"},balance:{t:"Balance Sheet",s:""},reports:{t:"Reports & Export",s:"P&L · XBRL · Excel"}};
+const pgM={dashboard:{t:"Dashboard",s:"Signature SPA Men — business overview"},monthly:{t:"Monthly Report",s:""},daily:{t:"Daily Report",s:""},rent:{t:"Rent & Salaries",s:""},expenses:{t:"Expenses",s:"Shared — not for specific client"},threp:{t:"Therapist Reports",s:"Monthly job assignments & performance"},invoices:{t:"Invoices",s:""},inventory:{t:"Inventory",s:"Consumables · Tools · Hospitality"},"all-dash":{t:"All Branches",s:"Combined overview"},"all-monthly":{t:"Combined Monthly",s:"All branches"},"all-daily":{t:"Combined Daily",s:"All branches"},balance:{t:"Balance Sheet",s:""},reports:{t:"Reports & Export",s:"P&L · XBRL · Excel"}};
 document.querySelectorAll(".sb-item").forEach(item=>{
   item.addEventListener("click",()=>{
     document.querySelectorAll(".sb-item").forEach(n=>n.classList.remove("active"));
@@ -739,6 +1138,9 @@ function onEnt(pg){
   if(pg==="threp")rThRep();
   if(pg==="inventory")rInv2();
   if(pg==="reports")rXBRL();
+  if(pg==="all-dash")rCombDash();
+  if(pg==="all-monthly")rCombMon();
+  if(pg==="all-daily")rCombDaily();
 }
 document.querySelectorAll(".tab-btn").forEach(btn=>{
   btn.addEventListener("click",()=>{
@@ -1842,6 +2244,15 @@ ld();
 if(!S.inventory)S.inventory={consumables:[],tools:[],hospitality:[]};
 document.querySelectorAll("input[type=date]").forEach(i=>{if(!i.value)i.value=td();});
 document.querySelectorAll("input[type=month]").forEach(i=>{if(!i.value)i.value=nym();});
+// Load all branches into memory
+loadAllBranches();
+// Set the branch selector to current branch
+const bSel=document.getElementById("branch-sel");
+if(bSel) bSel.value=curBranch;
+// Update UI labels
+updateBranchUI();
+// Load current branch data
+ld();
 rDash();
 </script>
 </body>
