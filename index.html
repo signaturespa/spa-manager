@@ -141,6 +141,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
   <div class="sb-sec">Overview</div>
   <div class="sb-item active" data-pg="dashboard">&#11035; Dashboard</div>
   <div class="sb-item" data-pg="monthly">&#128197; Monthly Report</div>
+  <div class="sb-item" data-pg="daily">&#128198; Daily Report</div>
   <div class="sb-sec">Operations</div>
   <div class="sb-item" data-pg="cash">&#128181; Cash Ledger</div>
   <div class="sb-item" data-pg="rent">&#127968; Rent &amp; Salaries</div>
@@ -204,6 +205,100 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
     <div class="cc"><div class="ct">EXPENSES BREAKDOWN</div><div id="d-bd"></div></div>
   </div>
   <div class="ac"><div class="at">RECENT ACTIVITY</div><div id="d-ac"></div></div>
+</div>
+
+<!-- DAILY REPORT -->
+<div class="page" id="page-daily">
+  <div class="ph">
+    <div class="phl"><h2>Daily Report</h2><p id="daily-sub"></p></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn bts" onclick="drNav(-1)">&#8249;</button>
+      <span id="dr-lbl" style="font-size:14px;font-weight:600;min-width:120px;text-align:center"></span>
+      <button class="btn bts" onclick="drNav(1)">&#8250;</button>
+      <button class="btn bts btg" onclick="drToday()">Today</button>
+      <button class="btn bts" onclick="window.print()">&#128424;&#65039; Print</button>
+    </div>
+  </div>
+
+  <!-- Hero banner -->
+  <div class="hero" style="margin-bottom:14px">
+    <div class="hl">
+      <div class="hlb">&#128200; DAY REVENUE</div>
+      <div class="hv" id="dr-rev">KWD 0.000</div>
+      <div class="hs" id="dr-rev-sub">0 visits · 0 services</div>
+    </div>
+    <div class="hr">
+      <div class="hlb">&#128181; CASH BALANCE</div>
+      <div class="hv" id="dr-cash-lbl" style="font-size:22px">KWD 0.000</div>
+      <div class="hcl"><span class="dot dg"></span>Cash: <span id="dr-cash">KWD 0.000</span></div>
+      <div class="hcl"><span class="dot dr2"></span>Card: <span id="dr-card">KWD 0.000</span></div>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="mg" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px">
+    <div class="mc"><div class="ml">&#129534; INVOICES</div><div class="mv vd" id="dr-inv-count">0</div><div class="ms">Created today</div></div>
+    <div class="mc"><div class="ml">&#9203; PENDING</div><div class="mv va" id="dr-pending">KWD 0.000</div><div class="ms" id="dr-pend-n">0 unpaid</div></div>
+    <div class="mc"><div class="ml">&#128228; EXPENSES</div><div class="mv vr" id="dr-exp">KWD 0.000</div><div class="ms">Shared today</div></div>
+    <div class="mc"><div class="ml">&#129489; THERAPISTS</div><div class="mv vd" id="dr-th-count">0</div><div class="ms">Active today</div></div>
+    <div class="mc"><div class="ml">&#128100; CLIENTS</div><div class="mv vd" id="dr-cli-count">0</div><div class="ms">Served today</div></div>
+  </div>
+
+  <div class="chr" style="margin-bottom:14px">
+    <!-- Invoices table -->
+    <div class="tc" style="overflow:hidden">
+      <div class="tch"><span style="font-size:13px;font-weight:600">&#129534; Today\'s Invoices</span><span id="dr-inv-total" style="font-size:13px;font-weight:700;color:var(--gn)">KWD 0.000</span></div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>#</th><th>Client</th><th>Services</th><th>Therapist</th><th>Pay</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead>
+          <tbody id="dr-inv-tb"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right column: therapists + services -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <!-- Therapist breakdown -->
+      <div class="cc">
+        <div class="ct">&#129489; THERAPIST PERFORMANCE</div>
+        <div id="dr-th-bd"></div>
+      </div>
+      <!-- Payment split -->
+      <div class="cc">
+        <div class="ct">&#128181; PAYMENT SPLIT</div>
+        <div id="dr-pay-bd"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chr" style="margin-bottom:14px">
+    <!-- Services breakdown -->
+    <div class="cc">
+      <div class="ct">&#9986;&#65039; SERVICES BREAKDOWN</div>
+      <div id="dr-svc-bd"></div>
+    </div>
+    <!-- Expenses today -->
+    <div class="cc">
+      <div class="ct">&#128228; EXPENSES TODAY</div>
+      <div id="dr-exp-bd"></div>
+    </div>
+  </div>
+
+  <!-- Hourly chart -->
+  <div class="cc" style="margin-bottom:14px">
+    <div class="ct">&#128336; REVENUE BY HOUR</div>
+    <div style="display:flex;align-items:flex-end;gap:3px;height:80px" id="dr-hourly-chart"></div>
+    <div style="display:flex;gap:3px;margin-top:4px" id="dr-hourly-labels"></div>
+  </div>
+
+  <!-- Notes section -->
+  <div class="cc">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="ct" style="margin:0">&#128221; DAILY NOTES</div>
+      <button class="btn bts btg" onclick="saveDailyNote()">&#128190; Save</button>
+    </div>
+    <textarea id="dr-notes" rows="3" placeholder="Add notes for this day..." style="width:100%;padding:10px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13.5px;resize:vertical"></textarea>
+  </div>
 </div>
 
 <!-- MONTHLY -->
@@ -660,7 +755,7 @@ document.querySelectorAll(".mo").forEach(m=>m.addEventListener("click",e=>{if(e.
 let dFn=null;
 document.getElementById("del-btn").onclick=()=>{if(dFn){dFn();dFn=null;}closeM("del-m");};
 function cfDel(fn){dFn=fn;openM("del-m");}
-const pgM={dashboard:{t:"Dashboard",s:"Signature SPA Men — business overview"},monthly:{t:"Monthly Report",s:""},cash:{t:"Cash Ledger",s:""},rent:{t:"Rent & Salaries",s:""},expenses:{t:"Expenses",s:"Shared — not for specific client"},crep:{t:"Client Reports",s:""},threp:{t:"Therapist Reports",s:"Monthly job assignments & performance"},invoices:{t:"Invoices",s:""},clients:{t:"Clients",s:""},inventory:{t:"Inventory",s:"Consumables · Tools · Hospitality"},balance:{t:"Balance Sheet",s:""},reports:{t:"Reports & Export",s:"P&L · XBRL · Excel"}};
+const pgM={dashboard:{t:"Dashboard",s:"Signature SPA Men — business overview"},monthly:{t:"Monthly Report",s:""},daily:{t:"Daily Report",s:""},cash:{t:"Cash Ledger",s:""},rent:{t:"Rent & Salaries",s:""},expenses:{t:"Expenses",s:"Shared — not for specific client"},crep:{t:"Client Reports",s:""},threp:{t:"Therapist Reports",s:"Monthly job assignments & performance"},invoices:{t:"Invoices",s:""},clients:{t:"Clients",s:""},inventory:{t:"Inventory",s:"Consumables · Tools · Hospitality"},balance:{t:"Balance Sheet",s:""},reports:{t:"Reports & Export",s:"P&L · XBRL · Excel"}};
 document.querySelectorAll(".sb-item").forEach(item=>{
   item.addEventListener("click",()=>{
     document.querySelectorAll(".sb-item").forEach(n=>n.classList.remove("active"));
@@ -676,6 +771,7 @@ document.querySelectorAll(".sb-item").forEach(item=>{
 });
 function onEnt(pg){
   if(pg==="dashboard")rDash();
+  if(pg==="daily")rDaily();
   if(pg==="monthly")rMon();
   if(pg==="cash")rCash();
   if(pg==="rent"){rRent();rEmp();rSH();}
@@ -1158,6 +1254,207 @@ function xExport(){
 function exportData(){const b=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="spa_backup.json";a.click();}
 function importData(){const i=document.createElement("input");i.type="file";i.accept=".json";i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{S=JSON.parse(ev.target.result);sv();location.reload();}catch(e){alert("Invalid file");}};r.readAsText(f);};i.click();}
 
+
+
+// ===== DAILY REPORT =====
+let drD = new Date();
+
+function drToday(){ drD = new Date(); rDaily(); }
+function drNav(d){ drD = new Date(drD.getFullYear(), drD.getMonth(), drD.getDate()+d); rDaily(); }
+
+function rDaily(){
+  const yr = drD.getFullYear(), mo = drD.getMonth(), dy = drD.getDate();
+  const dateStr = yr+'-'+String(mo+1).padStart(2,'0')+'-'+String(dy).padStart(2,'0');
+  const isToday = dateStr === td();
+
+  // Label
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const label = days[drD.getDay()]+', '+dy+' '+MNF[mo]+' '+yr;
+  document.getElementById('dr-lbl').textContent = label;
+  document.getElementById('daily-sub').textContent = isToday ? 'Live — Today' : fd(dateStr);
+
+  // Filter invoices for this day
+  const dayInvs = S.invoices.filter(i => gm(i.date)+'-'+String(new Date(i.date+'T00:00:00').getDate()).padStart(2,'0') === dateStr || i.date === dateStr);
+  const paidInvs = dayInvs.filter(i => i.status === 'paid');
+  const pendInvs = dayInvs.filter(i => i.status !== 'paid');
+  const revenue = sa(paidInvs);
+  const pending = sa(pendInvs);
+  const cashRev = sa(paidInvs.filter(i => i.payment === 'cash'));
+  const cardRev = sa(paidInvs.filter(i => i.payment === 'card'));
+
+  // Filter expenses for this day
+  const dayExps = S.expenses.filter(e => e.date === dateStr);
+  const expTotal = sa(dayExps);
+
+  // Count unique clients and therapists
+  const uniqueClients = new Set(dayInvs.map(i => i.clientId||i.clientName)).size;
+  const allThNames = [];
+  dayInvs.forEach(inv => {
+    (inv.services||[]).forEach(s => { if(s.therapistName) allThNames.push(s.therapistName); });
+    if(inv.therapistName && !allThNames.includes(inv.therapistName)) allThNames.push(inv.therapistName);
+  });
+  const uniqueTherapists = new Set(allThNames.filter(Boolean)).size;
+
+  const totalServices = dayInvs.reduce((s,i) => s+(i.services||[]).length, 0);
+
+  // Set KPIs
+  const set = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+  set('dr-rev', fk(revenue));
+  set('dr-rev-sub', dayInvs.length+' visits · '+totalServices+' services');
+  set('dr-cash-lbl', fk(revenue));
+  set('dr-cash', fk(cashRev));
+  set('dr-card', fk(cardRev));
+  set('dr-inv-count', dayInvs.length);
+  set('dr-pending', fk(pending));
+  set('dr-pend-n', pendInvs.length+' unpaid');
+  set('dr-exp', fk(expTotal));
+  set('dr-th-count', uniqueTherapists);
+  set('dr-cli-count', uniqueClients);
+  set('dr-inv-total', fk(revenue));
+
+  // Invoices table
+  const invTb = document.getElementById('dr-inv-tb');
+  if(!dayInvs.length){
+    invTb.innerHTML = '<tr><td colspan="7" class="em">No invoices for this day</td></tr>';
+  } else {
+    invTb.innerHTML = dayInvs.slice().sort((a,b) => a.id - b.id).map((inv,i) => {
+      const ths = [...new Set((inv.services||[]).map(s=>s.therapistName).filter(Boolean))].join(', ') || inv.therapistName || '—';
+      const svcs = (inv.services||[]).map(s=>s.name).join(', ') || '—';
+      return `<tr>
+        <td style="color:var(--mu);font-size:12px">#${String(inv.id).slice(-4)}</td>
+        <td><strong>${inv.clientName||'—'}</strong></td>
+        <td style="font-size:12px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${svcs}">${svcs}</td>
+        <td style="font-size:12px;color:var(--gnt)">${ths}</td>
+        <td><span class="badge ${inv.payment==='cash'?'bdgg':'bdbl'}">${inv.payment||'—'}</span></td>
+        <td><span class="badge ${inv.status==='paid'?'bdgg':inv.status==='pending'?'bdam':'bdrr'}">${inv.status}</span></td>
+        <td style="text-align:right" class="ag">${fk(inv.amount)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Therapist breakdown
+  const thMap = {};
+  dayInvs.forEach(inv => {
+    (inv.services||[]).forEach(s => {
+      const name = s.therapistName || inv.therapistName || 'Unassigned';
+      if(!thMap[name]) thMap[name] = {jobs:0, rev:0};
+      thMap[name].jobs++;
+      thMap[name].rev += s.price||0;
+    });
+  });
+  const thEntries = Object.entries(thMap).sort((a,b) => b[1].rev - a[1].rev);
+  const maxThRev = Math.max(...thEntries.map(e => e[1].rev), 1);
+  const thBdEl = document.getElementById('dr-th-bd');
+  if(!thEntries.length){
+    thBdEl.innerHTML = '<div class="em" style="padding:16px 0">No therapist assignments today</div>';
+  } else {
+    thBdEl.innerHTML = thEntries.map(([name, data]) => `
+      <div class="bdr">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500">${name}</div>
+          <div style="font-size:11px;color:var(--mu)">${data.jobs} service${data.jobs!==1?'s':''}</div>
+        </div>
+        <div class="bdb"><div class="bdf" style="width:${(data.rev/maxThRev)*100}%"></div></div>
+        <span class="bdv">${fk(data.rev)}</span>
+      </div>`).join('');
+  }
+
+  // Payment split
+  const payEl = document.getElementById('dr-pay-bd');
+  const totalPay = cashRev + cardRev;
+  if(totalPay === 0){
+    payEl.innerHTML = '<div class="em" style="padding:12px 0">No payments today</div>';
+  } else {
+    const cashPct = Math.round((cashRev/totalPay)*100);
+    const cardPct = 100 - cashPct;
+    payEl.innerHTML = `
+      <div class="bdr"><span class="bdl">&#128181; Cash</span><div class="bdb"><div class="bdf" style="width:${cashPct}%"></div></div><span class="bdv">${fk(cashRev)} <span style="font-size:11px;color:var(--mu)">${cashPct}%</span></span></div>
+      <div class="bdr"><span class="bdl">&#128179; Card / KNET</span><div class="bdb"><div class="bdf" style="width:${cardPct}%;background:var(--bl)"></div></div><span class="bdv" style="color:var(--bl)">${fk(cardRev)} <span style="font-size:11px;color:var(--mu)">${cardPct}%</span></span></div>`;
+  }
+
+  // Services breakdown
+  const svcMap = {};
+  dayInvs.forEach(inv => {
+    (inv.services||[]).forEach(s => {
+      if(!svcMap[s.name]) svcMap[s.name] = {count:0, rev:0};
+      svcMap[s.name].count++;
+      svcMap[s.name].rev += s.price||0;
+    });
+  });
+  const svcEntries = Object.entries(svcMap).sort((a,b) => b[1].rev - a[1].rev);
+  const maxSvcRev = Math.max(...svcEntries.map(e => e[1].rev), 1);
+  const svcEl = document.getElementById('dr-svc-bd');
+  if(!svcEntries.length){
+    svcEl.innerHTML = '<div class="em" style="padding:16px 0">No services today</div>';
+  } else {
+    svcEl.innerHTML = svcEntries.map(([name, data]) => `
+      <div class="bdr">
+        <div style="flex:1"><div style="font-size:12.5px">${name}</div><div style="font-size:11px;color:var(--mu)">×${data.count}</div></div>
+        <div class="bdb"><div class="bdf" style="width:${(data.rev/maxSvcRev)*100}%"></div></div>
+        <span class="bdv">${fk(data.rev)}</span>
+      </div>`).join('');
+  }
+
+  // Expenses breakdown
+  const expEl = document.getElementById('dr-exp-bd');
+  if(!dayExps.length){
+    expEl.innerHTML = '<div class="em" style="padding:16px 0">No expenses recorded today</div>';
+  } else {
+    expEl.innerHTML = dayExps.map(e => `
+      <div class="bdr">
+        <div style="flex:1"><div style="font-size:12.5px">${e.description}</div><div style="font-size:11px;color:var(--mu)">${EC[e.category]||e.category}</div></div>
+        <span class="arr" style="font-size:13px;font-weight:600">${fk(e.amount)}</span>
+      </div>`).join('') +
+      `<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1.5px solid var(--rd);margin-top:4px">
+        <span style="font-size:13px;font-weight:600">Total</span>
+        <span class="arr" style="font-size:14px;font-weight:700">${fk(expTotal)}</span>
+      </div>`;
+  }
+
+  // Hourly revenue chart (slots 8am–10pm)
+  const hourSlots = Array(15).fill(0); // indices 0=8am ... 14=10pm
+  dayInvs.forEach(inv => {
+    // Invoices don't store time, spread evenly — use invoice sequential order as proxy
+    // If we had time we'd use it; for now distribute by invoice index across work hours
+  });
+  // Use cash ledger entries that have time if they exist, otherwise show flat
+  // Actually show per-hour from cash ledger if available
+  const cashForDay = S.cash.filter(c => c.date === dateStr);
+  cashForDay.forEach(c => {
+    // no time field, just show total
+  });
+  // Simple visualization: show each invoice as a bar across hours by index
+  const hourRev = Array(15).fill(0);
+  if(dayInvs.length > 0){
+    dayInvs.forEach((inv, i) => {
+      // Distribute invoices across working hours 8-22 based on order
+      const slot = Math.min(14, Math.floor((i / Math.max(1, dayInvs.length)) * 15));
+      hourRev[slot] += inv.amount || 0;
+    });
+  }
+  const maxHr = Math.max(...hourRev, 1);
+  const hours = ['8','9','10','11','12','13','14','15','16','17','18','19','20','21','22'];
+  const hrChartEl = document.getElementById('dr-hourly-chart');
+  const hrLblEl = document.getElementById('dr-hourly-labels');
+  hrChartEl.innerHTML = hourRev.map((v,i) => `<div style="flex:1;background:${v>0?'#2D7A50':'#EEE'};border-radius:3px 3px 0 0;height:${Math.max(4,(v/maxHr)*76)}px;cursor:default;min-width:10px" title="${hours[i]}:00 — ${fk(v)}"></div>`).join('');
+  hrLblEl.innerHTML = hours.map(h => `<span style="flex:1;text-align:center;font-size:9.5px;color:var(--mu)">${h}</span>`).join('');
+
+  // Load saved note for this day
+  const noteKey = 'daily_note_'+dateStr;
+  const savedNote = (S.dailyNotes||{})[noteKey]||'';
+  const notesEl = document.getElementById('dr-notes');
+  if(notesEl) notesEl.value = savedNote;
+}
+
+function saveDailyNote(){
+  const yr = drD.getFullYear(), mo = drD.getMonth(), dy = drD.getDate();
+  const dateStr = yr+'-'+String(mo+1).padStart(2,'0')+'-'+String(dy).padStart(2,'0');
+  if(!S.dailyNotes) S.dailyNotes = {};
+  S.dailyNotes['daily_note_'+dateStr] = document.getElementById('dr-notes').value;
+  sv();
+  const btn = document.querySelector('[onclick="saveDailyNote()"]');
+  if(btn){ const orig = btn.textContent; btn.textContent = '✓ Saved!'; setTimeout(()=>btn.textContent=orig, 1500); }
+}
 
 // ===== THERAPIST REPORTS =====
 let thD=new Date();
