@@ -1381,7 +1381,7 @@ function rExp(){
 }
 let isvRows=[];
 // ===== SPA MENU PRICE LIST =====
-const SPA_MENU_GROUPS = [
+const SPA_MENU_GROUPS_MEN = [
   {
     label: "The Signature Treatments",
     items: [
@@ -1454,7 +1454,50 @@ const SPA_MENU_GROUPS = [
     ]
   }
 ];
-const SPA_MENU = SPA_MENU_GROUPS.flatMap(g=>g.items);
+const SPA_MENU_GROUPS_WOMEN = [
+  {
+    label: "Massage Rituals",
+    items: [
+      {name:"Swedish Massage (60 Min)",price:29.000,duration:"60 Min"},
+      {name:"Swedish Massage (90 Min)",price:39.000,duration:"90 Min"},
+      {name:"Swedish Massage (120 Min)",price:49.000,duration:"120 Min"},
+      {name:"Balinese Massage (60 Min)",price:29.000,duration:"60 Min"},
+      {name:"Balinese Massage (90 Min)",price:39.000,duration:"90 Min"},
+      {name:"Balinese Massage (120 Min)",price:49.000,duration:"120 Min"},
+      {name:"Deep Tissue Massage (60 Min)",price:31.000,duration:"60 Min"},
+      {name:"Deep Tissue Massage (90 Min)",price:41.000,duration:"90 Min"},
+      {name:"Deep Tissue Massage (120 Min)",price:51.000,duration:"120 Min"},
+      {name:"Sport Massage (60 Min)",price:31.000,duration:"60 Min"},
+      {name:"Sport Massage (90 Min)",price:41.000,duration:"90 Min"},
+      {name:"Sport Massage (120 Min)",price:51.000,duration:"120 Min"},
+      {name:"Side Prenatal Massage (60 Min)",price:31.000,duration:"60 Min"},
+      {name:"Side Prenatal Massage (90 Min)",price:41.000,duration:"90 Min"},
+      {name:"Side Prenatal Massage (120 Min)",price:51.000,duration:"120 Min"},
+      {name:"Hot Stone Massage (90 Min)",price:42.000,duration:"90 Min"},
+      {name:"Herbal Compress Massage (90 Min)",price:45.000,duration:"90 Min"},
+      {name:"Herbal Compress Massage (120 Min)",price:55.000,duration:"120 Min"},
+    ]
+  },
+  {
+    label: "Massage Boosters",
+    items: [
+      {name:"Foot Reflexology (30 Min)",price:19.000,duration:"30 Min"},
+      {name:"Head, Neck & Shoulders Massage (30 Min)",price:19.000,duration:"30 Min"},
+    ]
+  },
+  {
+    label: "Renewal Rituals",
+    items: [
+      {name:"Head Water Therapy (60 Min)",price:35.000,duration:"60 Min"},
+    ]
+  },
+];
+// Dynamic menu helpers — returns correct menu for current branch
+function getMenuGroups(){ return (curBranch==="ahw") ? SPA_MENU_GROUPS_WOMEN : SPA_MENU_GROUPS_MEN; }
+function getMenuItems(){  return getMenuGroups().flatMap(g=>g.items); }
+// Keep SPA_MENU_GROUPS as alias for backward compat (used in template literals)
+Object.defineProperty(window,"SPA_MENU_GROUPS",{get:()=>getMenuGroups(),configurable:true});
+Object.defineProperty(window,"SPA_MENU",{get:()=>getMenuItems(),configurable:true});
 
 function addIS(){
   const id=Date.now();isvRows.push(id);
