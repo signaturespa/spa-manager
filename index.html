@@ -397,12 +397,12 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
         <button class="btn" onclick="rSD();openM('sal-m')">+ Record salary</button>
       </div>
     </div>
-    <div class="tc sg"><div class="tw"><table><thead><tr><th>Employee</th><th>Civil ID</th><th>Role</th><th>Start Date</th><th>Base Salary</th><th>Daily Rate</th><th>Status</th><th></th></tr></thead><tbody id="emp-tb"></tbody></table></div></div>
+    <div class="tc sg"><div class="tw"><table><thead><tr><th>Employee</th><th>Civil ID</th><th>Role</th><th>Start Date</th><th>Base Salary</th><th>Hourly / Daily Rate</th><th>Status</th><th></th></tr></thead><tbody id="emp-tb"></tbody></table></div></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
       <span style="font-size:13px;font-weight:600">Salary History</span>
       <div class="sw" style="margin:0;width:220px"><span class="sic">&#128269;</span><input class="si" placeholder="Search..." id="sal-s" oninput="rSH()"></div>
     </div>
-    <div class="tc"><div class="tw"><table><thead><tr><th>Employee</th><th>Amount</th><th>OT Days</th><th>OT Amt</th><th>Month</th><th>Date</th><th>Notes</th><th></th></tr></thead><tbody id="sal-tb"></tbody></table></div></div>
+    <div class="tc"><div class="tw"><table><thead><tr><th>Employee</th><th>Amount</th><th>OT Hours</th><th>Hourly Rate</th><th>OT Amt</th><th>Month</th><th>Date</th><th>Notes</th><th></th></tr></thead><tbody id="sal-tb"></tbody></table></div></div>
   </div>
 </div>
 
@@ -638,7 +638,10 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 <div class="mf"><button class="btn" onclick="closeM('emp-m')">Cancel</button><button class="btn btg" onclick="saveEmp()">Save</button></div></div></div>
 
 <div class="mo" id="sal-m"><div class="md" style="width:480px"><div class="mh"><h3>&#128176; Record salary</h3><button class="mx" onclick="closeM('sal-m')">&#10005;</button></div>
-<div class="fg"><div class="full"><label>Employee</label><select id="sl-e" onchange="calcOT()"></select></div><div><label>Base Amount (KWD) *</label><input type="number" id="sl-a" step="0.001" min="0"></div><div><label>OT Days (salary/30 x days)</label><input type="number" id="sl-od" step="0.5" min="0" placeholder="0" oninput="calcOT()"></div><div><label>Daily Rate (auto)</label><input type="number" id="sl-dr" step="0.001" disabled></div><div><label>OT Amount (auto)</label><input type="number" id="sl-oa" step="0.001" disabled></div><div><label>Deductions (KWD)</label><input type="number" id="sl-dd" step="0.001" min="0" placeholder="0.000"></div><div><label>For month</label><input type="month" id="sl-m"></div><div><label>Date paid</label><input type="date" id="sl-dt"></div><div class="full"><label>Notes</label><input id="sl-n" placeholder="Optional notes"></div></div>
+<div class="fg"><div class="full"><label>Employee</label><select id="sl-e" onchange="calcOT()"></select></div><div><label>Base Amount (KWD) *</label><input type="number" id="sl-a" step="0.001" min="0"></div><div><label>OT Hours <span style="font-size:10px;color:var(--mu)">(working day = 8 hrs)</span></label><input type="number" id="sl-od" step="0.5" min="0" placeholder="0" oninput="calcOT()"></div><div><label>Daily Rate (auto)</label><input type="number" id="sl-dr" step="0.001" disabled></div><div><label>Hourly Rate (auto)</label><input type="number" id="sl-hr" step="0.001" disabled></div><div><label>OT Amount (auto)</label><input type="number" id="sl-oa" step="0.001" disabled></div><div><label>Deductions (KWD)</label><input type="number" id="sl-dd" step="0.001" min="0" placeholder="0.000"></div><div><label>For month</label><input type="month" id="sl-m"></div><div><label>Date paid</label><input type="date" id="sl-dt"></div><div class="full"><label>Notes</label><input id="sl-n" placeholder="Optional notes"></div></div>
+<div style="background:var(--cream);border-radius:var(--rs);padding:10px 12px;margin-top:6px;font-size:12px;color:var(--mu)">
+  &#128336; Formula: <strong style="color:var(--tx)">Salary ÷ 30 days ÷ 8 hours × OT Hours</strong>
+</div>
 <div class="mf"><button class="btn" onclick="closeM('sal-m')">Cancel</button><button class="btn btg" onclick="saveSal()">Save</button></div></div></div>
 
 <div class="mo" id="exp-m"><div class="md" style="width:440px"><div class="mh"><h3>&#128228; Add expense</h3><button class="mx" onclick="closeM('exp-m')">&#10005;</button></div>
@@ -925,7 +928,20 @@ function saveEmp(){
 function rEmp(){
   const tb=document.getElementById("emp-tb");
   if(!S.employees.length){tb.innerHTML='<tr><td colspan="8" class="em">No employees</td></tr>';return;}
-  tb.innerHTML=S.employees.map((e,i)=>`<tr><td><strong>${e.name}</strong></td><td style="font-family:monospace;font-size:12px">${e.civil||"---"}</td><td>${e.role||"---"}</td><td>${fd(e.hire)}</td><td class="ag">${fk(e.salary)}</td><td style="color:var(--mu);font-size:12px">${fk((e.salary||0)/30)}/day</td><td><span class="badge ${e.status==="active"?"bdgg":"bdgr"}">${e.status}</span></td><td><span class="td2" data-i="${i}">Del</span></td></tr>`).join("");
+  tb.innerHTML=S.employees.map((e,i)=>{
+    const daily=(e.salary||0)/30;
+    const hourly=daily/8;
+    return `<tr>
+      <td><strong>${e.name}</strong></td>
+      <td style="font-family:monospace;font-size:12px">${e.civil||"---"}</td>
+      <td>${e.role||"---"}</td>
+      <td>${fd(e.hire)}</td>
+      <td class="ag">${fk(e.salary)}</td>
+      <td style="font-size:12px;color:var(--mu)">${fk(hourly)}<span style="color:var(--mu)">/hr</span> &nbsp;<span style="color:var(--bd2)">|</span>&nbsp; ${fk(daily)}<span style="color:var(--mu)">/day</span></td>
+      <td><span class="badge ${e.status==="active"?"bdgg":"bdgr"}">${e.status}</span></td>
+      <td><span class="td2" data-i="${i}">Del</span></td>
+    </tr>`;
+  }).join("");
   tb.querySelectorAll(".td2").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i);cfDel(()=>{S.employees.splice(i,1);sv();rEmp();});});
 }
 function rSD(){
@@ -937,10 +953,14 @@ function calcOT(){
   const sel=document.getElementById("sl-e");
   if(!sel||!sel.options.length)return;
   const opt=sel.options[sel.selectedIndex];
-  const base=parseFloat(opt&&opt.dataset.s)||0,daily=base/30;
-  const otd=parseFloat(document.getElementById("sl-od").value)||0;
+  const base=parseFloat(opt&&opt.dataset.s)||0;
+  const daily=base/30;
+  const hourly=daily/8;
+  const otHrs=parseFloat(document.getElementById("sl-od").value)||0;
+  const otAmt=hourly*otHrs;
   document.getElementById("sl-dr").value=daily.toFixed(3);
-  document.getElementById("sl-oa").value=(daily*otd).toFixed(3);
+  document.getElementById("sl-hr").value=hourly.toFixed(3);
+  document.getElementById("sl-oa").value=otAmt.toFixed(3);
   if(!document.getElementById("sl-a").value)document.getElementById("sl-a").value=base.toFixed(3);
 }
 document.getElementById("sl-e").addEventListener("change",calcOT);
@@ -950,18 +970,24 @@ function saveSal(){
   const emp=S.employees.find(e=>e.id===empId);
   if(!emp)return alert("Select employee.");
   const base=parseFloat(document.getElementById("sl-a").value)||0;
-  const otd=parseFloat(document.getElementById("sl-od").value)||0;
-  const daily=(emp.salary||0)/30,otAmt=otd*daily;
+  const otHrs=parseFloat(document.getElementById("sl-od").value)||0;
+  const daily=(emp.salary||0)/30;
+  const hourly=daily/8;
+  const otAmt=hourly*otHrs;
   const ded=parseFloat(document.getElementById("sl-dd").value)||0;
-  S.salaries.push({id:Date.now(),empId,empName:emp.name,amount:base+otAmt-ded,base,otDays:otd,otAmt,deductions:ded,month:document.getElementById("sl-m").value,date:document.getElementById("sl-dt").value,notes:document.getElementById("sl-n").value});
+  S.salaries.push({id:Date.now(),empId,empName:emp.name,amount:base+otAmt-ded,base,otDays:otHrs,otAmt,otHours:otHrs,hourlyRate:hourly,deductions:ded,month:document.getElementById("sl-m").value,date:document.getElementById("sl-dt").value,notes:document.getElementById("sl-n").value});
   sv();rSH();closeM("sal-m");
 }
 function rSH(){
   const srch=(document.getElementById("sal-s")||{}).value||"";
   const rows=S.salaries.filter(s=>!srch||s.empName.toLowerCase().includes(srch.toLowerCase())).slice().reverse();
   const tb=document.getElementById("sal-tb");
-  if(!rows.length){tb.innerHTML='<tr><td colspan="8" class="em">No salary records</td></tr>';return;}
-  tb.innerHTML=rows.map((s,i)=>`<tr><td><strong>${s.empName}</strong></td><td class="ag">${fk(s.amount)}</td><td>${s.otDays||0}</td><td>${fk(s.otAmt||0)}</td><td>${fm(s.month)}</td><td>${fd(s.date)}</td><td style="font-size:12px;color:var(--mu)">${s.notes||"---"}</td><td><span class="td2" data-i="${i}">Del</span></td></tr>`).join("");
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9" class="em">No salary records</td></tr>';return;}
+  tb.innerHTML=rows.map((s,i)=>{
+    const hrs=s.otHours!=null?s.otHours:(s.otDays||0);
+    const hrRate=s.hourlyRate!=null?s.hourlyRate:((s.base||0)/30/8);
+    return `<tr><td><strong>${s.empName}</strong></td><td class="ag">${fk(s.amount)}</td><td>${hrs>0?hrs+" hr":"—"}</td><td style="color:var(--mu);font-size:12px">${fk(hrRate)}/hr</td><td>${fk(s.otAmt||0)}</td><td>${fm(s.month)}</td><td>${fd(s.date)}</td><td style="font-size:12px;color:var(--mu)">${s.notes||"---"}</td><td><span class="td2" data-i="${i}">Del</span></td></tr>`;
+  }).join("");
   tb.querySelectorAll(".td2").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i);cfDel(()=>{S.salaries=S.salaries.filter(x=>x.id!==rows[i].id);sv();rSH();});});
 }
 function saveExp(){
