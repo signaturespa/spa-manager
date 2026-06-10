@@ -394,6 +394,92 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 </div>
 
 <!-- CLIENTS -->
+<!-- THERAPIST REPORTS -->
+<div class="page" id="page-threp">
+  <div class="ph">
+    <div class="phl"><h2>Therapist Reports</h2><p>Monthly job assignments &amp; performance</p></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="btn bts" onclick="thNav(-1)">&#8249;</button>
+      <span id="th-lbl" style="font-size:14px;font-weight:600;min-width:110px;text-align:center"></span>
+      <button class="btn bts" onclick="thNav(1)">&#8250;</button>
+      <select id="th-emp-filter" style="padding:7px 12px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px" onchange="rThRep()">
+        <option value="">All Therapists</option>
+      </select>
+    </div>
+  </div>
+  <div class="mg" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+    <div class="mc"><div class="ml">TOTAL JOBS</div><div class="mv vd" id="th-jobs">0</div><div class="ms">This month</div></div>
+    <div class="mc"><div class="ml">TOTAL REVENUE</div><div class="mv vg" id="th-rev">KWD 0.000</div><div class="ms">From assigned jobs</div></div>
+    <div class="mc"><div class="ml">ACTIVE THERAPISTS</div><div class="mv vd" id="th-active">0</div><div class="ms">Had jobs this month</div></div>
+    <div class="mc"><div class="ml">AVG PER THERAPIST</div><div class="mv vg" id="th-avg">KWD 0.000</div><div class="ms">Revenue avg</div></div>
+  </div>
+  <div class="crg" id="th-cards" style="margin-bottom:18px"></div>
+  <div class="tc">
+    <div class="tch" style="justify-content:space-between">
+      <span style="font-size:13px;font-weight:600">Job Detail</span>
+      <div class="sw" style="margin:0;width:240px"><span class="sic">&#128269;</span><input class="si" placeholder="Search therapist or client..." id="th-s" style="padding:6px 14px 6px 32px" oninput="rThRep()"></div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Therapist</th><th>Role</th><th>Client</th><th>Service</th><th>Date</th><th>Payment</th><th class="text-right">Amount</th><th>Invoice</th></tr></thead>
+      <tbody id="th-tb"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div class="page" id="page-inventory">
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tb="inv-cons">&#129514; Consumables</div>
+    <div class="tab-btn" data-tb="inv-tools">&#128296; Tools</div>
+    <div class="tab-btn" data-tb="inv-hosp">&#9749; Hospitality</div>
+  </div>
+  <div class="tp active" id="tab-inv-cons">
+    <div class="mg mg3" style="max-width:660px;margin-bottom:14px">
+      <div class="mc"><div class="ml">TOTAL ITEMS</div><div class="mv vd" id="ic-total-items">0</div><div class="ms">In stock</div></div>
+      <div class="mc"><div class="ml">LOW STOCK</div><div class="mv vr" id="ic-low">0</div><div class="ms">Below minimum</div></div>
+      <div class="mc"><div class="ml">TOTAL VALUE</div><div class="mv vg" id="ic-value">KWD 0.000</div></div>
+    </div>
+    <div class="ph" style="margin-bottom:14px">
+      <div class="sw" style="margin:0;flex:1;max-width:360px"><span class="sic">&#128269;</span><input class="si" placeholder="Search consumables..." id="ic-s" oninput="rInv2()"></div>
+      <button class="btn btg" onclick="openInvModal('consumables')">+ Add item</button>
+    </div>
+    <div class="tc"><div class="tw"><table>
+      <thead><tr><th>Item</th><th>Unit</th><th>Qty</th><th>Min</th><th>Unit Cost</th><th>Total Value</th><th>Updated</th><th>Status</th><th></th></tr></thead>
+      <tbody id="ic-tb"></tbody>
+    </table></div></div>
+  </div>
+  <div class="tp" id="tab-inv-tools">
+    <div class="mg mg3" style="max-width:660px;margin-bottom:14px">
+      <div class="mc"><div class="ml">TOTAL ITEMS</div><div class="mv vd" id="it-total-items">0</div></div>
+      <div class="mc"><div class="ml">NEEDS SERVICE</div><div class="mv vr" id="it-service">0</div></div>
+      <div class="mc"><div class="ml">TOTAL VALUE</div><div class="mv vg" id="it-value">KWD 0.000</div></div>
+    </div>
+    <div class="ph" style="margin-bottom:14px">
+      <div class="sw" style="margin:0;flex:1;max-width:360px"><span class="sic">&#128269;</span><input class="si" placeholder="Search tools..." id="it-s" oninput="rInv2()"></div>
+      <button class="btn btg" onclick="openInvModal('tools')">+ Add tool</button>
+    </div>
+    <div class="tc"><div class="tw"><table>
+      <thead><tr><th>Tool / Equipment</th><th>Qty</th><th>Condition</th><th>Cost</th><th>Purchased</th><th>Last Service</th><th>Next Service</th><th>Status</th><th></th></tr></thead>
+      <tbody id="it-tb"></tbody>
+    </table></div></div>
+  </div>
+  <div class="tp" id="tab-inv-hosp">
+    <div class="mg mg3" style="max-width:660px;margin-bottom:14px">
+      <div class="mc"><div class="ml">TOTAL ITEMS</div><div class="mv vd" id="ih-total-items">0</div></div>
+      <div class="mc"><div class="ml">LOW STOCK</div><div class="mv vr" id="ih-low">0</div></div>
+      <div class="mc"><div class="ml">TOTAL VALUE</div><div class="mv vg" id="ih-value">KWD 0.000</div></div>
+    </div>
+    <div class="ph" style="margin-bottom:14px">
+      <div class="sw" style="margin:0;flex:1;max-width:360px"><span class="sic">&#128269;</span><input class="si" placeholder="Search hospitality..." id="ih-s" oninput="rInv2()"></div>
+      <button class="btn btg" onclick="openInvModal('hospitality')">+ Add item</button>
+    </div>
+    <div class="tc"><div class="tw"><table>
+      <thead><tr><th>Item</th><th>Unit</th><th>Qty</th><th>Min</th><th>Unit Cost</th><th>Total Value</th><th>Updated</th><th>Status</th><th></th></tr></thead>
+      <tbody id="ih-tb"></tbody>
+    </table></div></div>
+  </div>
+</div>
+
 <!-- BALANCE SHEET -->
 <div class="page" id="page-balance">
   <div class="ph"><div class="phl"><h2>Balance Sheet</h2><p id="bal-d">As of today</p></div><button class="btn btg" onclick="openM('ast-m')">+ Add asset</button></div>
@@ -954,7 +1040,9 @@ const SPA_MENU = SPA_MENU_GROUPS.flatMap(g=>g.items);
 function addIS(){
   const id=Date.now();isvRows.push(id);
   const div=document.createElement("div");div.className="svr";div.id="isv-"+id;
-  const thOpts=S.employees.filter(e=>e.status==="active").map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+  // Build therapist options live from active employees
+  const activeEmps=S.employees.filter(e=>e.status==="active");
+  const thOpts='<option value="">Therapist</option>'+activeEmps.map(e=>`<option value="${e.id}">${e.name}${e.role?" — "+e.role:""}</option>`).join("");
   const svcOpts=SPA_MENU.map(s=>`<option value="${s.name}" data-price="${s.price}">${s.name} — KWD ${s.price.toFixed(3)}</option>`).join("");
   div.innerHTML=`
     <select id="isdd-${id}" onchange="onSvcSelect(${id})" style="flex:2;padding:7px 10px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px;min-width:160px">
@@ -1002,11 +1090,26 @@ function openNewInv(){
   const next=Math.max(0,...nums)+1;
   const pad=String(next).padStart(3,"0");
   document.getElementById("in-num").value="INV-"+pad;
-  // Refresh therapist list
-  const th=document.getElementById("in-th");
-  th.innerHTML='<option value="">-- None / Walk-in --</option>'+S.employees.filter(e=>e.status==="active").map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+  // Always refresh therapist list live from Employees section
+  refreshInvTherapists();
   document.getElementById("in-c").value="";
   document.getElementById("in-cp").value="";
+}
+function refreshInvTherapists(){
+  const activeEmps=S.employees.filter(e=>e.status==="active");
+  const empOpts='<option value="">-- None / Walk-in --</option>'+activeEmps.map(e=>`<option value="${e.id}">${e.name}${e.role?" — "+e.role:""}</option>`).join("");
+  // Refresh overall therapist dropdown
+  const th=document.getElementById("in-th");
+  if(th) th.innerHTML=empOpts;
+  // Refresh all per-service therapist dropdowns already in the modal
+  isvRows.forEach(id=>{
+    const sel=document.getElementById("isth-"+id);
+    if(sel){
+      const cur=sel.value;
+      sel.innerHTML=empOpts;
+      sel.value=cur; // restore previous selection if still valid
+    }
+  });
 }
 function saveInv(){
   const clientName=document.getElementById("in-c").value.trim();
@@ -1339,57 +1442,76 @@ function rThRep(){
   const ym=thD.getFullYear()+"-"+String(thD.getMonth()+1).padStart(2,"0");
   document.getElementById("th-lbl").textContent=MNF[thD.getMonth()]+" "+thD.getFullYear();
   const srch=(document.getElementById("th-s")||{}).value||"";
+  const empFilter=(document.getElementById("th-emp-filter")||{}).value||"";
 
-  // collect all service-level assignments for this month
+  // ── Populate filter dropdown live from Employees ──────────────────────────
+  const filterSel=document.getElementById("th-emp-filter");
+  if(filterSel){
+    const cur=filterSel.value;
+    filterSel.innerHTML='<option value="">All Therapists</option>'+
+      S.employees.filter(e=>e.status==="active")
+        .map(e=>`<option value="${e.id}">${e.name}${e.role?" — "+e.role:""}</option>`).join("");
+    filterSel.value=cur;
+  }
+
+  // ── Build employee lookup: id→emp and name→emp ────────────────────────────
+  const empMap={};
+  S.employees.forEach(e=>{ empMap[String(e.id)]=e; empMap[e.name]=e; });
+
+  // ── Collect service-level jobs for this month ─────────────────────────────
   const jobs=[];
   S.invoices.filter(inv=>gm(inv.date)===ym).forEach(inv=>{
     (inv.services||[]).forEach(svc=>{
-      const thName=svc.therapistName||(inv.therapistName)||"";
-      const thId=svc.therapistId||(inv.therapistId)||"";
-      jobs.push({thId,thName,clientName:inv.clientName,svcName:svc.name,price:svc.price||0,date:inv.date,payment:inv.payment,invId:inv.id,invNum:"#"+String(inv.id).slice(-4),status:inv.status});
+      const thId=String(svc.therapistId||inv.therapistId||"");
+      const thName=svc.therapistName||inv.therapistName||"";
+      const emp=empMap[thId]||empMap[thName]||null;
+      jobs.push({
+        thId, thName:emp?emp.name:thName, thRole:emp?emp.role||"Therapist":"",
+        clientName:inv.clientName||"—", svcName:svc.name||"—",
+        price:svc.price||0, date:inv.date, payment:inv.payment,
+        invId:inv.id, invNum:inv.invNum||"#"+String(inv.id).slice(-4), status:inv.status
+      });
     });
   });
 
-  // group by therapist
+  // ── Group by therapist ────────────────────────────────────────────────────
   const byTh={};
   jobs.forEach(j=>{
     const key=j.thId||j.thName||"unassigned";
-    if(!byTh[key])byTh[key]={name:j.thName||"Unassigned",jobs:[],revenue:0,clients:new Set()};
+    if(!byTh[key]) byTh[key]={name:j.thName||"Unassigned",role:j.thRole,jobs:[],revenue:0,clients:new Set()};
     byTh[key].jobs.push(j);
     byTh[key].revenue+=j.price;
     byTh[key].clients.add(j.clientName);
   });
 
+  // ── KPI summary ───────────────────────────────────────────────────────────
   const entries=Object.values(byTh).sort((a,b)=>b.revenue-a.revenue);
   const totalJobs=jobs.length;
   const totalRev=jobs.reduce((s,j)=>s+j.price,0);
   const active=entries.filter(e=>e.name!=="Unassigned").length;
   const avg=active>0?(entries.filter(e=>e.name!=="Unassigned").reduce((s,e)=>s+e.revenue,0)/active):0;
-
   document.getElementById("th-jobs").textContent=totalJobs;
   document.getElementById("th-rev").textContent=fk(totalRev);
   document.getElementById("th-active").textContent=active;
   document.getElementById("th-avg").textContent=fk(avg);
 
-  // therapist cards
+  // ── Therapist cards ───────────────────────────────────────────────────────
   const grid=document.getElementById("th-cards");
   if(!entries.length){
-    grid.innerHTML='<div class="em" style="grid-column:1/-1">No jobs assigned this month — create invoices with therapist assignments</div>';
+    grid.innerHTML='<div class="em" style="grid-column:1/-1;padding:32px">No jobs assigned this month — create invoices with therapist assignments</div>';
   } else {
     const maxRev=Math.max(...entries.map(e=>e.revenue),1);
     grid.innerHTML=entries.map(e=>{
       const ini=e.name.split(" ").slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?";
       const pct=Math.round((e.revenue/maxRev)*100);
-      const emp=S.employees.find(em=>em.name===e.name);
       return `<div class="crc">
-        <div class="crh">
-          <div class="crav">${ini}</div>
-          <div><div class="crn">${e.name}</div><div class="crs">${emp?emp.role||"Therapist":"Therapist"}</div></div>
+        <div class="crh"><div class="crav">${ini}</div>
+          <div><div class="crn">${e.name}</div><div class="crs">${e.role||"Therapist"}</div></div>
         </div>
         <div class="crst">
-          <div><div class="csl">JOBS</div><div class="csv g">${e.jobs.length}</div></div>
+          <div><div class="csl">JOBS</div><div class="csv vg">${e.jobs.length}</div></div>
           <div><div class="csl">CLIENTS</div><div class="csv">${e.clients.size}</div></div>
-          <div><div class="csl">REVENUE</div><div class="csv g">${e.revenue.toFixed(3)}</div></div>
+          <div><div class="csl">REVENUE</div><div class="csv vg">${fk(e.revenue)}</div></div>
         </div>
         <div class="crm"><span>${pct}% of top</span><span style="color:var(--gn);font-weight:600">${fk(e.revenue)}</span></div>
         <div class="crp"><div class="crpf" style="width:${pct}%"></div></div>
@@ -1397,25 +1519,29 @@ function rThRep(){
     }).join("");
   }
 
-  // detail table
-  const filtered=jobs.filter(j=>!srch||(j.thName||"").toLowerCase().includes(srch.toLowerCase())||(j.clientName||"").toLowerCase().includes(srch.toLowerCase()));
+  // ── Detail table with employee filter + search ────────────────────────────
+  const filtered=jobs.filter(j=>{
+    const matchFilter=!empFilter||(j.thId===empFilter);
+    const matchSearch=!srch||(j.thName||"").toLowerCase().includes(srch.toLowerCase())||
+                              (j.clientName||"").toLowerCase().includes(srch.toLowerCase());
+    return matchFilter&&matchSearch;
+  });
   const tb=document.getElementById("th-tb");
   if(!filtered.length){
-    tb.innerHTML='<tr><td colspan="7" class="em">No job records match the search</td></tr>';
+    tb.innerHTML='<tr><td colspan="8" class="em">No records match</td></tr>';
     return;
   }
   tb.innerHTML=filtered.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(j=>`<tr>
-    <td><strong style="color:var(--gnt)">${j.thName||"<span style='color:var(--mu);font-style:italic'>Unassigned</span>"}</strong></td>
-    <td>${j.clientName||"---"}</td>
-    <td>${j.svcName||"---"}</td>
+    <td><strong>${j.thName||'<span style="color:var(--mu);font-style:italic">Unassigned</span>'}</strong></td>
+    <td style="font-size:12px;color:var(--mu)">${j.thRole||"—"}</td>
+    <td>${j.clientName}</td>
+    <td style="font-size:12px">${j.svcName}</td>
     <td>${fd(j.date)}</td>
-    <td><span class="badge ${j.payment==="cash"?"bdgg":"bdbl"}">${j.payment||"---"}</span></td>
-    <td style="text-align:right" class="ag">${fk(j.price)}</td>
+    <td><span class="badge ${j.payment==="cash"?"bdgg":"bdbl"}">${j.payment||"—"}</span></td>
+    <td class="ag" style="text-align:right">${fk(j.price)}</td>
     <td><span class="tl" onclick="viewInv(${j.invId})">${j.invNum}</span></td>
   </tr>`).join("");
-}
-
-// ===== INVENTORY =====
+}// ===== INVENTORY =====
 // S.inventory = { consumables: [], tools: [], hospitality: [] }
 if(!S.inventory) S.inventory={consumables:[],tools:[],hospitality:[]};
 
