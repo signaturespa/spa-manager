@@ -247,7 +247,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
   <div class="chr" style="margin-bottom:14px">
     <!-- Invoices table -->
     <div class="tc" style="overflow:hidden">
-      <div class="tch"><span style="font-size:13px;font-weight:600">&#129534; Today\'s Invoices</span><span id="dr-inv-total" style="font-size:13px;font-weight:700;color:var(--gn)">KWD 0.000</span></div>
+      <div class="tch"><span style="font-size:13px;font-weight:600">&#129534; Today's Invoices</span><span id="dr-inv-total" style="font-size:13px;font-weight:700;color:var(--gn)">KWD 0.000</span></div>
       <div class="tw">
         <table>
           <thead><tr><th>#</th><th>Client</th><th>Services</th><th>Therapist</th><th>Pay</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead>
@@ -921,11 +921,12 @@ function rRent(){
   tb.querySelectorAll(".td2").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i);cfDel(()=>{S.rent=S.rent.filter(x=>x.id!==rows[i].id);sv();rRent();});});
 }
 function openEmpModal(editId){
-  const isEdit = !!editId;
+  const id = editId ? parseInt(editId) : null;
+  const isEdit = !!id;
   document.getElementById("emp-m-title").innerHTML = isEdit ? "&#9999;&#65039; Edit employee" : "&#128188; Add employee";
-  document.getElementById("em-id").value = editId || "";
+  document.getElementById("em-id").value = id || "";
   if(isEdit){
-    const emp = S.employees.find(e=>e.id===editId);
+    const emp = S.employees.find(e=>e.id===id);
     if(!emp) return;
     document.getElementById("em-n").value = emp.name || "";
     document.getElementById("em-r").value = emp.role || "";
@@ -968,7 +969,6 @@ function saveEmp(){
   }
   sv(); rEmp(); closeM("emp-m");
 }
-}
 function rEmp(){
   const tb=document.getElementById("emp-tb");
   if(!S.employees.length){tb.innerHTML='<tr><td colspan="8" class="em">No employees</td></tr>';return;}
@@ -984,7 +984,7 @@ function rEmp(){
       <td style="font-size:12px;color:var(--mu)">${fk(hourly)}<span>/hr</span> &nbsp;|&nbsp; ${fk(daily)}<span>/day</span></td>
       <td><span class="badge ${e.status==="active"?"bdgg":"bdgr"}">${e.status}</span></td>
       <td style="display:flex;gap:6px">
-        <span class="tl" onclick="openEmpModal(${e.id})">Edit</span>
+        <span class="tl" onclick="openEmpModal(this.dataset.id)" data-id="${e.id}">Edit</span>
         <span class="td2" data-i="${i}">Del</span>
       </td>
     </tr>`;
