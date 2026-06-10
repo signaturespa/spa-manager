@@ -143,7 +143,6 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
   <div class="sb-item" data-pg="monthly">&#128197; Monthly Report</div>
   <div class="sb-item" data-pg="daily">&#128198; Daily Report</div>
   <div class="sb-sec">Operations</div>
-  <div class="sb-item" data-pg="cash">&#128181; Cash Ledger</div>
   <div class="sb-item" data-pg="rent">&#127968; Rent &amp; Salaries</div>
   <div class="sb-item" data-pg="expenses">&#128228; Expenses</div>
   <div class="sb-sec">Clients</div>
@@ -181,9 +180,10 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
   </div>
   <div class="hero">
     <div class="hl"><div class="hlb">&#128200; NET PROFIT</div><div class="hv" id="d-pr">KWD 0.000</div><div class="hs" id="d-ps">Margin 0% | Income: KWD 0.000</div></div>
-    <div class="hr"><div class="hlb">&#128181; CASH BALANCE</div><div class="hv" id="d-cb">KWD 0.000</div>
-      <div class="hcl"><span class="dot dg"></span>In: <span id="d-ci">KWD 0.000</span></div>
-      <div class="hcl"><span class="dot dr2"></span>Out: <span id="d-co">KWD 0.000</span></div>
+    <div class="hr" style="opacity:.85">
+      <div style="font-size:28px;font-weight:700;letter-spacing:2px">SIGNATURE</div>
+      <div style="font-size:13px;letter-spacing:4px;margin-top:4px;opacity:.75">SPA MEN</div>
+      <div style="font-size:11px;letter-spacing:1px;margin-top:6px;opacity:.55">Kuwait</div>
     </div>
   </div>
   <div class="mg">
@@ -349,32 +349,6 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 </div>
 
 <!-- CASH LEDGER -->
-<div class="page" id="page-cash">
-  <div class="che">
-    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-bottom:5px">CASH BALANCE</div>
-    <div style="font-size:34px;font-weight:700" id="cb-v">KWD 0.000</div>
-    <div style="font-size:12px;opacity:.6;margin-top:3px" id="cb-t">0 transactions</div>
-  </div>
-  <div class="mg mg3" style="margin-bottom:14px">
-    <div class="mc"><div class="ml">TOTAL IN</div><div class="mv vg" id="cb-i">KWD 0.000</div></div>
-    <div class="mc"><div class="ml">TOTAL OUT</div><div class="mv vr" id="cb-o">KWD 0.000</div></div>
-    <div class="mc"><div class="ml">THIS MONTH NET</div><div class="mv vg" id="cb-n">KWD 0.000</div><div class="ms" id="cb-ml"></div></div>
-  </div>
-  <div class="ph" style="margin-bottom:14px">
-    <div class="fcr" style="margin:0">
-      <div class="fc active" data-cf="all">All</div>
-      <div class="fc" data-cf="in">In</div>
-      <div class="fc" data-cf="out">Out</div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btg" onclick="openM('ci-m')">+ Cash In</button>
-      <button class="btn btr" onclick="openM('co-m')">&minus; Cash Out</button>
-    </div>
-  </div>
-  <div class="sw"><span class="sic">&#128269;</span><input class="si" placeholder="Search cash ledger..." id="cash-s" oninput="rCash()"></div>
-  <div class="tc"><div class="tw"><table><thead><tr><th>Description</th><th>Cat</th><th>Type</th><th>Amount</th><th>Date</th><th>Ref</th><th></th></tr></thead><tbody id="cash-tb"></tbody></table></div></div>
-</div>
-
 <!-- RENT & SALARIES -->
 <div class="page" id="page-rent">
   <div class="tab-bar">
@@ -621,14 +595,6 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 </div><!-- /main -->
 
 <!-- MODALS -->
-<div class="mo" id="ci-m"><div class="md"><div class="mh"><h3>&#128181; Cash In</h3><button class="mx" onclick="closeM('ci-m')">&#10005;</button></div>
-<div class="fg"><div class="full"><label>Description *</label><input id="ci-d" placeholder="e.g. Client deposit"></div><div><label>Amount (KWD) *</label><input type="number" id="ci-a" step="0.001" min="0"></div><div><label>Date</label><input type="date" id="ci-dt"></div><div><label>Category</label><select id="ci-c"><option>Sales</option><option>Advance</option><option>Refund</option><option>Other</option></select></div><div><label>Reference</label><input id="ci-r" placeholder="Ref #"></div><div><label>Cash Flow Type (IAS 7)</label><select id="ci-f"><option value="operating">Operating</option><option value="investing">Investing</option><option value="financing">Financing</option></select></div><div class="full"><label>Notes</label><textarea id="ci-n" rows="2"></textarea></div></div>
-<div class="mf"><button class="btn" onclick="closeM('ci-m')">Cancel</button><button class="btn btg" onclick="saveCash('in')">Save</button></div></div></div>
-
-<div class="mo" id="co-m"><div class="md"><div class="mh"><h3>&#128184; Cash Out</h3><button class="mx" onclick="closeM('co-m')">&#10005;</button></div>
-<div class="fg"><div class="full"><label>Description *</label><input id="co-d" placeholder="e.g. Supplier payment"></div><div><label>Amount (KWD) *</label><input type="number" id="co-a" step="0.001" min="0"></div><div><label>Date</label><input type="date" id="co-dt"></div><div><label>Category</label><select id="co-c"><option>Consumables</option><option>Tools</option><option>Machines</option><option>Laundry</option><option>Maintenance</option><option>Delivery</option><option>Salary</option><option>Rent</option><option>Other</option></select></div><div><label>Reference</label><input id="co-r" placeholder="Ref #"></div><div><label>Cash Flow Type (IAS 7)</label><select id="co-f"><option value="operating">Operating</option><option value="investing">Investing</option><option value="financing">Financing</option></select></div><div class="full"><label>Notes</label><textarea id="co-n" rows="2"></textarea></div></div>
-<div class="mf"><button class="btn" onclick="closeM('co-m')">Cancel</button><button class="btn btg" onclick="saveCash('out')">Save</button></div></div></div>
-
 <div class="mo" id="rent-m"><div class="md" style="width:420px"><div class="mh"><h3>&#127968; Add rent payment</h3><button class="mx" onclick="closeM('rent-m')">&#10005;</button></div>
 <div class="fg"><div class="full"><label>Description</label><input id="r-d" placeholder="e.g. SPA monthly rent"></div><div><label>Amount (KWD) *</label><input type="number" id="r-a" step="0.001" min="0"></div><div><label>For month</label><input type="month" id="r-m"></div><div class="full"><label>Date paid</label><input type="date" id="r-dt"></div></div>
 <div class="mf"><button class="btn" onclick="closeM('rent-m')">Cancel</button><button class="btn btg" onclick="saveRent()">Save</button></div></div></div>
@@ -742,7 +708,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const MNF=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const EC={consumables:"Consumables",tools:"Tools",machines:"Machines",laundry:"Laundry",maintenance:"Maintenance",delivery:"Delivery & Transportation",other:"Other"};
-let S={clients:[],invoices:[],expenses:[],cash:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{}};
+let S={clients:[],invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{}};
 function sv(){try{localStorage.setItem("spa_mg2",JSON.stringify(S));}catch(e){}}
 function ld(){try{const d=localStorage.getItem("spa_mg2");if(d)S=JSON.parse(d);}catch(e){}}
 function td(){return new Date().toISOString().split("T")[0];}
@@ -759,7 +725,7 @@ document.querySelectorAll(".mo").forEach(m=>m.addEventListener("click",e=>{if(e.
 let dFn=null;
 document.getElementById("del-btn").onclick=()=>{if(dFn){dFn();dFn=null;}closeM("del-m");};
 function cfDel(fn){dFn=fn;openM("del-m");}
-const pgM={dashboard:{t:"Dashboard",s:"Signature SPA Men — business overview"},monthly:{t:"Monthly Report",s:""},daily:{t:"Daily Report",s:""},cash:{t:"Cash Ledger",s:""},rent:{t:"Rent & Salaries",s:""},expenses:{t:"Expenses",s:"Shared — not for specific client"},crep:{t:"Client Reports",s:""},threp:{t:"Therapist Reports",s:"Monthly job assignments & performance"},invoices:{t:"Invoices",s:""},clients:{t:"Clients",s:""},inventory:{t:"Inventory",s:"Consumables · Tools · Hospitality"},balance:{t:"Balance Sheet",s:""},reports:{t:"Reports & Export",s:"P&L · XBRL · Excel"}};
+const pgM={dashboard:{t:"Dashboard",s:"Signature SPA Men — business overview"},monthly:{t:"Monthly Report",s:""},daily:{t:"Daily Report",s:""},rent:{t:"Rent & Salaries",s:""},expenses:{t:"Expenses",s:"Shared — not for specific client"},crep:{t:"Client Reports",s:""},threp:{t:"Therapist Reports",s:"Monthly job assignments & performance"},invoices:{t:"Invoices",s:""},clients:{t:"Clients",s:""},inventory:{t:"Inventory",s:"Consumables · Tools · Hospitality"},balance:{t:"Balance Sheet",s:""},reports:{t:"Reports & Export",s:"P&L · XBRL · Excel"}};
 document.querySelectorAll(".sb-item").forEach(item=>{
   item.addEventListener("click",()=>{
     document.querySelectorAll(".sb-item").forEach(n=>n.classList.remove("active"));
@@ -777,7 +743,6 @@ function onEnt(pg){
   if(pg==="dashboard")rDash();
   if(pg==="daily")rDaily();
   if(pg==="monthly")rMon();
-  if(pg==="cash")rCash();
   if(pg==="rent"){rRent();rEmp();rSH();}
   if(pg==="expenses")rExp();
   if(pg==="crep")rCR();
@@ -811,12 +776,10 @@ function rDash(){
   const mR=sa(S.rent.filter(r=>(r.month||gm(r.date||""))===cm));
   const mS=sa(S.salaries.filter(s=>s.month===cm));
   const mSh=sa(S.expenses.filter(e=>gm(e.date)===cm));
-  const cin=sa(S.cash.filter(c=>c.type==="in")),cout=sa(S.cash.filter(c=>c.type==="out"));
   const profit=inc-exp-mR-mS;
   const margin=inc>0?Math.round((profit/inc)*100):0;
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   set("d-pr",fk(profit));set("d-ps","Margin: "+margin+"% | Income: "+fk(inc));
-  set("d-cb",fk(cin-cout));set("d-ci",fk(cin));set("d-co",fk(cout));
   set("d-inc",fk(inc));set("d-exp",fk(exp));set("d-pnd",fk(sa(pend)));
   set("d-pnds",pend.length+" unpaid");set("d-inv",invs.length);
   set("d-ren",fk(mR));set("d-sal",fk(mS));
@@ -851,8 +814,8 @@ function rMon(){
   const mS=sa(S.salaries.filter(s=>s.month===ym));
   const mR=sa(S.rent.filter(r=>(r.month||gm(r.date||""))===ym));
   const tE=ev+mS+mR,profit=inc-tE,margin=inc>0?Math.round((profit/inc)*100):0;
-  const cin=sa(S.cash.filter(c=>c.type==="in"&&gm(c.date)===ym));
-  const cout=sa(S.cash.filter(c=>c.type==="out"&&gm(c.date)===ym));
+  const cin=sa(S.invoices.filter(i=>i.status==="paid"&&gm(i.date)===ym));
+  const cout=0;
   const tr=(c,p)=>{if(!p)return "";const d=Math.round(((c-p)/p)*100);return `<span style="color:${d>=0?"var(--gn)":"var(--rd)"}">&dtrif;${Math.abs(d)}%</span>`;};
   const set=(id,v,cls)=>{const e=document.getElementById(id);if(!e)return;e.textContent=v;if(cls)e.className=cls;};
   set("mr-in",fk(inc));document.getElementById("mr-it").innerHTML=tr(inc,pI);
@@ -878,30 +841,6 @@ function rMon(){
   S.clients.forEach(c=>{if(ct2[c.name])ct2[c.name].ph=c.phone||"";});
   document.getElementById("mr-tc").innerHTML=Object.values(ct2).sort((a,b)=>b.amt-a.amt).slice(0,5).map(c=>`<tr><td>${c.n}</td><td>${c.ph||"---"}</td><td class="ag">${fk(c.amt)}</td></tr>`).join("")||'<tr><td colspan="3" class="em">No invoices</td></tr>';
   document.getElementById("mr-iv").innerHTML=mi.slice(0,6).map(i=>`<tr><td style="font-size:12px;color:var(--mu)">#${String(i.id).slice(-4)}</td><td>${i.clientName||"---"}</td><td><span class="badge ${i.payment==="cash"?"bdgg":"bdbl"}">${i.payment||"---"}</span></td><td class="ag">${fk(i.amount)}</td></tr>`).join("")||'<tr><td colspan="4" class="em">No invoices</td></tr>';
-}
-function saveCash(type){
-  const p=type==="in"?"ci":"co";
-  const desc=document.getElementById(p+"-d").value.trim(),amount=parseFloat(document.getElementById(p+"-a").value)||0;
-  if(!desc||amount<=0)return alert("Description and amount required.");
-  S.cash.push({id:Date.now(),type,description:desc,amount,date:document.getElementById(p+"-dt").value,category:document.getElementById(p+"-c").value,ref:document.getElementById(p+"-r").value,flow:document.getElementById(p+"-f").value,notes:document.getElementById(p+"-n").value});
-  sv();rCash();closeM(type==="in"?"ci-m":"co-m");
-  document.getElementById(p+"-d").value="";document.getElementById(p+"-a").value="";
-}
-function rCash(){
-  const flt=(document.querySelector("[data-cf].active")||{dataset:{cf:"all"}}).dataset.cf;
-  const srch=(document.getElementById("cash-s")||{}).value||"";
-  const items=S.cash.filter(c=>flt==="in"?c.type==="in":flt==="out"?c.type==="out":true).filter(c=>!srch||c.description.toLowerCase().includes(srch.toLowerCase())).slice().reverse();
-  const ti=sa(S.cash.filter(c=>c.type==="in")),to=sa(S.cash.filter(c=>c.type==="out")),cm=nym();
-  const mi=sa(S.cash.filter(c=>c.type==="in"&&gm(c.date)===cm)),mo=sa(S.cash.filter(c=>c.type==="out"&&gm(c.date)===cm));
-  document.getElementById("cb-v").textContent=fk(ti-to);
-  document.getElementById("cb-t").textContent=S.cash.length+" transactions";
-  document.getElementById("cb-i").textContent=fk(ti);document.getElementById("cb-o").textContent=fk(to);
-  document.getElementById("cb-n").textContent=fk(mi-mo);
-  document.getElementById("cb-ml").textContent=MNF[parseInt(cm.split("-")[1])-1]+" "+cm.split("-")[0];
-  const tb=document.getElementById("cash-tb");
-  if(!items.length){tb.innerHTML='<tr><td colspan="7" class="em">No transactions</td></tr>';return;}
-  tb.innerHTML=items.map((c,i)=>`<tr><td><strong>${c.description}</strong>${c.notes?`<br><span style="font-size:11px;color:var(--mu)">${c.notes}</span>`:""}</td><td><span class="badge bdgr">${c.category||"---"}</span></td><td><span class="badge ${c.type==="in"?"bdgg":"bdrr"}">${c.type==="in"?"&#9650; In":"&#9660; Out"}</span></td><td class="${c.type==="in"?"ag":"arr"}">${c.type==="in"?"+":"-"}${fk(c.amount)}</td><td>${fd(c.date)}</td><td style="font-size:12px;color:var(--mu)">${c.ref||"---"}</td><td><span class="td2" data-i="${i}">Del</span></td></tr>`).join("");
-  tb.querySelectorAll(".td2").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i);cfDel(()=>{const id=items[i].id;S.cash=S.cash.filter(x=>x.id!==id);sv();rCash();});});
 }
 function saveRent(){
   const a=parseFloat(document.getElementById("r-a").value)||0;
