@@ -591,7 +591,8 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 <div class="fg"><div class="full"><label>Description *</label><input id="ex-d" placeholder="Expense description"></div><div><label>Amount (KWD) *</label><input type="number" id="ex-a" step="0.001" min="0"></div><div><label>Date</label><input type="date" id="ex-dt"></div><div><label>Category</label><select id="ex-c"><option value="consumables">Consumables</option><option value="tools">Tools</option><option value="machines">Machines</option><option value="laundry">Laundry</option><option value="maintenance">Maintenance</option><option value="delivery">Delivery &amp; Transportation</option><option value="other">Other</option></select></div><div class="full"><label>Notes</label><input id="ex-n" placeholder="Optional"></div></div>
 <div class="mf"><button class="btn" onclick="closeM('exp-m')">Cancel</button><button class="btn btg" onclick="saveExp()">Save</button></div></div></div>
 
-<div class="mo" id="inv-m"><div class="md" style="width:580px"><div class="mh"><h3>&#129534; New invoice</h3><button class="mx" onclick="closeM('inv-m')">&#10005;</button></div>
+<div class="mo" id="inv-m"><div class="md" style="width:580px"><div class="mh"><h3 id="inv-m-title">&#129534; New invoice</h3><button class="mx" onclick="closeM('inv-m')">&#10005;</button></div>
+<input type="hidden" id="in-edit-id">
 <div class="fg"><div><label>Invoice # <span style="font-size:10px;color:var(--mu)">(editable)</span></label><input id="in-num" placeholder="e.g. INV-001" style="font-weight:600"></div><div><label>Date</label><input type="date" id="in-dt"></div><div><label>Client Name</label><input id="in-c" placeholder="Client name (optional)"></div><div><label>Client Phone</label><input id="in-cp" placeholder="+965 XXXX XXXX"></div><div><label>Payment Method</label><select id="in-py"><option value="cash">Cash</option><option value="card">Card / KNET</option></select></div><div><label>Status</label><select id="in-st"><option value="paid">Paid</option><option value="pending">Pending</option><option value="overdue">Overdue</option></select></div><div><label>Assigned Therapist</label><select id="in-th"><option value="">-- None / Walk-in --</option></select></div><div class="full"><label>Notes</label><input id="in-n" placeholder="Optional"></div></div>
 <div class="fsl">Services</div>
 <div id="in-svcs"></div>
@@ -1082,6 +1083,8 @@ function onSvcSelect(id){
 function removeIS(id){isvRows=isvRows.filter(r=>r!==id);const el=document.getElementById("isv-"+id);if(el)el.remove();calcIT();}
 function calcIT(){let t=0;isvRows.forEach(id=>{t+=parseFloat(document.getElementById("isp-"+id)?.value)||0;});document.getElementById("in-tot").textContent=fk(t);}
 function openNewInv(){
+  document.getElementById("inv-m-title").innerHTML="&#129534; New invoice";
+  document.getElementById("in-edit-id").value="";
   // Auto-generate next invoice number
   const nums=S.invoices.map(i=>{
     const m=String(i.invNum||"").match(/(\d+)$/);
@@ -1090,10 +1093,68 @@ function openNewInv(){
   const next=Math.max(0,...nums)+1;
   const pad=String(next).padStart(3,"0");
   document.getElementById("in-num").value="INV-"+pad;
+  document.getElementById("in-dt").value=td();
+  document.getElementById("in-py").value="cash";
+  document.getElementById("in-st").value="paid";
+  document.getElementById("in-n").value="";
+  isvRows=[];document.getElementById("in-svcs").innerHTML="";
+  document.getElementById("in-tot").textContent="KWD 0.000";
   // Always refresh therapist list live from Employees section
   refreshInvTherapists();
   document.getElementById("in-c").value="";
   document.getElementById("in-cp").value="";
+}
+
+function openEditInv(id){
+  const v=S.invoices.find(i=>i.id===id);
+  if(!v)return;
+  document.getElementById("inv-m-title").innerHTML="&#9999;&#65039; Edit invoice";
+  document.getElementById("in-edit-id").value=id;
+  document.getElementById("in-num").value=v.invNum||"";
+  document.getElementById("in-dt").value=v.date||"";
+  document.getElementById("in-c").value=v.clientName||"";
+  document.getElementById("in-cp").value=v.clientPhone||"";
+  document.getElementById("in-py").value=v.payment||"cash";
+  document.getElementById("in-st").value=v.status||"paid";
+  document.getElementById("in-n").value=v.notes||"";
+  // Refresh therapists then set overall therapist
+  refreshInvTherapists();
+  document.getElementById("in-th").value=v.therapistId||"";
+  // Rebuild service rows from saved invoice
+  isvRows=[];document.getElementById("in-svcs").innerHTML="";
+  (v.services||[]).forEach(svc=>{
+    const rowId=Date.now()+Math.random();
+    isvRows.push(rowId);
+    const activeEmps=S.employees.filter(e=>e.status==="active");
+    const thOpts='<option value="">Therapist</option>'+activeEmps.map(e=>`<option value="${e.id}">${e.name}${e.role?" — "+e.role:""}</option>`).join("");
+    const div=document.createElement("div");div.className="svr";div.id="isv-"+rowId;
+    div.innerHTML=`
+      <select id="isdd-${rowId}" onchange="onSvcSelect(${rowId})" style="flex:2;padding:7px 10px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px;min-width:160px">
+        <option value="">— Select service —</option>
+        ${SPA_MENU_GROUPS.map(g=>`<optgroup label="${g.label}">${g.items.map(s=>`<option value="${s.name}" data-price="${s.price}">${s.name}${s.duration?" ("+s.duration+")":""} — KWD ${s.price.toFixed(3)}</option>`).join("")}</optgroup>`).join("")}
+        <optgroup label="— Custom —"><option value="__custom__">Custom / Other...</option></optgroup>
+      </select>
+      <input type="text" id="isn-${rowId}" placeholder="Custom service name" oninput="calcIT()" style="flex:1;padding:7px 10px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px;display:none">
+      <input type="number" id="isp-${rowId}" placeholder="KWD" step="0.001" min="0" oninput="calcIT()" style="width:100px;padding:7px 10px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px">
+      <select id="isth-${rowId}" style="flex:1;padding:7px 10px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px;min-width:120px"><option value="">Therapist</option>${thOpts}</select>
+      <button class="btn bts btr" onclick="removeIS(${rowId})">&#10005;</button>`;
+    document.getElementById("in-svcs").appendChild(div);
+    // Set values
+    const isKnown=SPA_MENU.some(s=>s.name===svc.name);
+    const dd=document.getElementById("isdd-"+rowId);
+    if(isKnown){
+      dd.value=svc.name;
+    } else {
+      dd.value="__custom__";
+      const cf=document.getElementById("isn-"+rowId);
+      cf.style.display="block";
+      cf.value=svc.name;
+    }
+    document.getElementById("isp-"+rowId).value=(svc.price||0).toFixed(3);
+    document.getElementById("isth-"+rowId).value=svc.therapistId||"";
+  });
+  calcIT();
+  openM("inv-m");
 }
 function refreshInvTherapists(){
   const activeEmps=S.employees.filter(e=>e.status==="active");
@@ -1112,6 +1173,7 @@ function refreshInvTherapists(){
   });
 }
 function saveInv(){
+  const editId=document.getElementById("in-edit-id").value;
   const clientName=document.getElementById("in-c").value.trim();
   const clientPhone=document.getElementById("in-cp").value.trim();
   const invNum=document.getElementById("in-num").value.trim()||("INV-"+String(S.invoices.length+1).padStart(3,"0"));
@@ -1132,8 +1194,15 @@ function saveInv(){
   }).filter(s=>s.name&&s.price>0);
   const total=svcs.reduce((s,r)=>s+r.price,0);
   if(!svcs.length)return alert("Add at least one service.");
-  S.invoices.push({id:Date.now(),invNum,clientName,clientPhone,therapistId:thId||"",therapistName:thEmp?thEmp.name:"",services:svcs,amount:total,date:document.getElementById("in-dt").value,payment:document.getElementById("in-py").value,status:document.getElementById("in-st").value,notes:document.getElementById("in-n").value});
+  const invData={invNum,clientName,clientPhone,therapistId:thId||"",therapistName:thEmp?thEmp.name:"",services:svcs,amount:total,date:document.getElementById("in-dt").value,payment:document.getElementById("in-py").value,status:document.getElementById("in-st").value,notes:document.getElementById("in-n").value};
+  if(editId){
+    const idx=S.invoices.findIndex(i=>i.id===parseInt(editId));
+    if(idx>=0) S.invoices[idx]={...S.invoices[idx],...invData};
+  } else {
+    S.invoices.push({id:Date.now(),...invData});
+  }
   isvRows=[];document.getElementById("in-svcs").innerHTML="";document.getElementById("in-tot").textContent="KWD 0.000";document.getElementById("in-c").value="";document.getElementById("in-cp").value="";
+  document.getElementById("in-edit-id").value="";
   sv();rInv();closeM("inv-m");alert("Invoice saved!");
 }
 function rInv(){
@@ -1144,9 +1213,10 @@ function rInv(){
   tb.innerHTML=rows.map((v,i)=>{
     const ths=[...new Set((v.services||[]).map(s=>s.therapistName).filter(Boolean))];
     const thDisplay=ths.length?ths.join(", "):v.therapistName||"---";
-    return `<tr><td style="color:var(--mu);font-size:12px;font-weight:600">${v.invNum||"#"+String(v.id).slice(-4)}</td><td><strong>${v.clientName||"---"}</strong></td><td style="font-size:12px">${(v.services||[]).map(s=>s.name).join(", ")||"---"}</td><td style="font-size:12px;color:var(--gnt)">${thDisplay}</td><td class="ag">${fk(v.amount)}</td><td>${fd(v.date)}</td><td><span class="badge ${v.payment==="cash"?"bdgg":"bdbl"}">${v.payment||"---"}</span></td><td><span class="badge ${v.status==="paid"?"bdgg":v.status==="pending"?"bdam":"bdrr"}">${v.status}</span></td><td style="display:flex;gap:6px"><span class="tl" data-i="${i}">View</span><span class="tl" data-i2="${i}">&#8633;</span><span class="td2" data-i3="${i}">Del</span></td></tr>`;
+    return `<tr><td style="color:var(--mu);font-size:12px;font-weight:600">${v.invNum||"#"+String(v.id).slice(-4)}</td><td><strong>${v.clientName||"---"}</strong></td><td style="font-size:12px">${(v.services||[]).map(s=>s.name).join(", ")||"---"}</td><td style="font-size:12px;color:var(--gnt)">${thDisplay}</td><td class="ag">${fk(v.amount)}</td><td>${fd(v.date)}</td><td><span class="badge ${v.payment==="cash"?"bdgg":"bdbl"}">${v.payment||"---"}</span></td><td><span class="badge ${v.status==="paid"?"bdgg":v.status==="pending"?"bdam":"bdrr"}">${v.status}</span></td><td style="display:flex;gap:6px"><span class="tl" data-i="${i}">View</span><span class="tl" data-ie="${i}">Edit</span><span class="tl" data-i2="${i}">&#8633;</span><span class="td2" data-i3="${i}">Del</span></td></tr>`;
   }).join("");
   tb.querySelectorAll("[data-i]").forEach(el=>el.onclick=()=>viewInv(rows[parseInt(el.dataset.i)].id));
+  tb.querySelectorAll("[data-ie]").forEach(el=>el.onclick=()=>openEditInv(rows[parseInt(el.dataset.ie)].id));
   tb.querySelectorAll("[data-i2]").forEach(el=>el.onclick=()=>{const v=rows[parseInt(el.dataset.i2)];const cy=["pending","paid","overdue"];v.status=cy[(cy.indexOf(v.status)+1)%cy.length];sv();rInv();});
   tb.querySelectorAll("[data-i3]").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i3);cfDel(()=>{S.invoices=S.invoices.filter(x=>x.id!==rows[i].id);sv();rInv();});});
 }
