@@ -146,10 +146,8 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
   <div class="sb-item" data-pg="rent">&#127968; Rent &amp; Salaries</div>
   <div class="sb-item" data-pg="expenses">&#128228; Expenses</div>
   <div class="sb-sec">Clients</div>
-  <div class="sb-item" data-pg="crep">&#128202; Client Reports</div>
   <div class="sb-item" data-pg="threp">&#129489; Therapist Reports</div>
   <div class="sb-item" data-pg="invoices">&#129534; Invoices</div>
-  <div class="sb-item" data-pg="clients">&#128100; Clients</div>
   <div class="sb-item" data-pg="inventory">&#128230; Inventory</div>
   <div class="sb-sec">Financial</div>
   <div class="sb-item" data-pg="balance">&#9878;&#65039; Balance Sheet</div>
@@ -241,7 +239,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
     <div class="mc"><div class="ml">&#9203; PENDING</div><div class="mv va" id="dr-pending">KWD 0.000</div><div class="ms" id="dr-pend-n">0 unpaid</div></div>
     <div class="mc"><div class="ml">&#128228; EXPENSES</div><div class="mv vr" id="dr-exp">KWD 0.000</div><div class="ms">Shared today</div></div>
     <div class="mc"><div class="ml">&#129489; THERAPISTS</div><div class="mv vd" id="dr-th-count">0</div><div class="ms">Active today</div></div>
-    <div class="mc"><div class="ml">&#128100; CLIENTS</div><div class="mv vd" id="dr-cli-count">0</div><div class="ms">Served today</div></div>
+    
   </div>
 
   <div class="chr" style="margin-bottom:14px">
@@ -388,122 +386,14 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 </div>
 
 <!-- CLIENT REPORTS -->
-<div class="page" id="page-crep">
-  <div class="ph"><div class="phl"><h2>Client Reports</h2></div>
-    <select id="cr-f" style="padding:7px 12px;border:.5px solid var(--bd2);border-radius:var(--rs)" onchange="rCR()"><option value="all">All time</option></select>
-  </div>
-  <div class="crg" id="cr-g"></div>
-</div>
-
 <!-- INVOICES -->
 <div class="page" id="page-invoices">
-  <div class="ph"><div class="phl"><h2>Invoices</h2></div><button class="btn btg" onclick="rID();openM('inv-m')">+ New invoice</button></div>
+  <div class="ph"><div class="phl"><h2>Invoices</h2></div><button class="btn btg" onclick="openNewInv();openM('inv-m')">+ New invoice</button></div>
   <div class="sw"><span class="sic">&#128269;</span><input class="si" placeholder="Search invoices..." id="inv-s" oninput="rInv()"></div>
-  <div class="tc"><div class="tw"><table><thead><tr><th>#</th><th>Client</th><th>Services</th><th>Therapist</th><th>Amount</th><th>Date</th><th>Payment</th><th>Status</th><th></th></tr></thead><tbody id="inv-tb"></tbody></table></div></div>
+  <div class="tc"><div class="tw"><table><thead><tr><th>Invoice #</th><th>Client</th><th>Services</th><th>Therapist</th><th>Amount</th><th>Date</th><th>Payment</th><th>Status</th><th></th></tr></thead><tbody id="inv-tb"></tbody></table></div></div>
 </div>
 
 <!-- CLIENTS -->
-<div class="page" id="page-clients">
-  <div class="ph"><div class="phl"><h2>Clients</h2></div><button class="btn btg" onclick="openM('cli-m')">+ Add client</button></div>
-  <div class="sw"><span class="sic">&#128269;</span><input class="si" placeholder="Search clients..." id="cl-s" oninput="rCli()"></div>
-  <div class="tc"><div class="tw"><table><thead><tr><th>Name</th><th>Phone</th><th>Date</th><th>Invoices</th><th>Billed</th><th></th></tr></thead><tbody id="cli-tb"></tbody></table></div></div>
-</div>
-
-<!-- THERAPIST REPORTS -->
-<div class="page" id="page-threp">
-  <div class="ph">
-    <div class="phl"><h2>Therapist Reports</h2><p>Monthly job assignments &amp; performance</p></div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="btn bts" onclick="thNav(-1)">&#8249;</button>
-      <span id="th-lbl" style="font-size:14px;font-weight:600;min-width:110px;text-align:center"></span>
-      <button class="btn bts" onclick="thNav(1)">&#8250;</button>
-    </div>
-  </div>
-
-  <!-- summary metric cards -->
-  <div class="mg" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
-    <div class="mc"><div class="ml">TOTAL JOBS</div><div class="mv vd" id="th-jobs">0</div><div class="ms">This month</div></div>
-    <div class="mc"><div class="ml">TOTAL REVENUE</div><div class="mv vg" id="th-rev">KWD 0.000</div><div class="ms">From assigned jobs</div></div>
-    <div class="mc"><div class="ml">ACTIVE THERAPISTS</div><div class="mv vd" id="th-active">0</div><div class="ms">Had jobs this month</div></div>
-    <div class="mc"><div class="ml">AVG PER THERAPIST</div><div class="mv vg" id="th-avg">KWD 0.000</div><div class="ms">Revenue avg</div></div>
-  </div>
-
-  <!-- therapist cards grid -->
-  <div class="crg" id="th-cards" style="margin-bottom:18px"></div>
-
-  <!-- detailed table -->
-  <div class="tc">
-    <div class="tch" style="justify-content:space-between">
-      <span style="font-size:13px;font-weight:600">Job Detail — All Therapists</span>
-      <div class="sw" style="margin:0;width:240px"><span class="sic">&#128269;</span><input class="si" placeholder="Search by therapist or client..." id="th-s" style="padding:6px 14px 6px 32px" oninput="rThRep()"></div>
-    </div>
-    <div class="tw"><table>
-      <thead><tr><th>Therapist</th><th>Client</th><th>Service</th><th>Date</th><th>Payment</th><th class="text-right">Amount</th><th>Invoice</th></tr></thead>
-      <tbody id="th-tb"></tbody>
-    </table></div>
-  </div>
-</div>
-
-<!-- INVENTORY -->
-<div class="page" id="page-inventory">
-  <div class="tab-bar">
-    <div class="tab-btn active" data-tb="inv-cons">&#129514; Consumables</div>
-    <div class="tab-btn" data-tb="inv-tools">&#128296; Tools</div>
-    <div class="tab-btn" data-tb="inv-hosp">&#9749; Hospitality</div>
-  </div>
-
-  <!-- CONSUMABLES TAB -->
-  <div class="tp active" id="tab-inv-cons">
-    <div class="mg mg3" style="max-width:660px;margin-bottom:14px">
-      <div class="mc"><div class="ml">TOTAL ITEMS</div><div class="mv vd" id="ic-total-items">0</div><div class="ms">In stock</div></div>
-      <div class="mc"><div class="ml">LOW STOCK</div><div class="mv vr" id="ic-low">0</div><div class="ms">Below minimum</div></div>
-      <div class="mc"><div class="ml">TOTAL VALUE</div><div class="mv vg" id="ic-value">KWD 0.000</div><div class="ms">Cost value</div></div>
-    </div>
-    <div class="ph" style="margin-bottom:14px">
-      <div class="sw" style="margin:0;flex:1;max-width:360px"><span class="sic">&#128269;</span><input class="si" placeholder="Search consumables..." id="ic-s" oninput="rInv2()"></div>
-      <button class="btn btg" onclick="openInvModal('consumables')">+ Add item</button>
-    </div>
-    <div class="tc"><div class="tw"><table>
-      <thead><tr><th>Item</th><th>Unit</th><th>Qty in Stock</th><th>Min Stock</th><th>Unit Cost (KWD)</th><th>Total Value</th><th>Last Updated</th><th>Status</th><th></th></tr></thead>
-      <tbody id="ic-tb"></tbody>
-    </table></div></div>
-  </div>
-
-  <!-- TOOLS TAB -->
-  <div class="tp" id="tab-inv-tools">
-    <div class="mg mg3" style="max-width:660px;margin-bottom:14px">
-      <div class="mc"><div class="ml">TOTAL ITEMS</div><div class="mv vd" id="it-total-items">0</div><div class="ms">Registered</div></div>
-      <div class="mc"><div class="ml">NEEDS SERVICE</div><div class="mv vr" id="it-service">0</div><div class="ms">Maintenance due</div></div>
-      <div class="mc"><div class="ml">TOTAL VALUE</div><div class="mv vg" id="it-value">KWD 0.000</div><div class="ms">Asset value</div></div>
-    </div>
-    <div class="ph" style="margin-bottom:14px">
-      <div class="sw" style="margin:0;flex:1;max-width:360px"><span class="sic">&#128269;</span><input class="si" placeholder="Search tools..." id="it-s" oninput="rInv2()"></div>
-      <button class="btn btg" onclick="openInvModal('tools')">+ Add tool</button>
-    </div>
-    <div class="tc"><div class="tw"><table>
-      <thead><tr><th>Tool / Equipment</th><th>Qty</th><th>Condition</th><th>Purchase Cost (KWD)</th><th>Purchase Date</th><th>Last Service</th><th>Next Service</th><th>Status</th><th></th></tr></thead>
-      <tbody id="it-tb"></tbody>
-    </table></div></div>
-  </div>
-
-  <!-- HOSPITALITY CONSUMABLES TAB -->
-  <div class="tp" id="tab-inv-hosp">
-    <div class="mg mg3" style="max-width:660px;margin-bottom:14px">
-      <div class="mc"><div class="ml">TOTAL ITEMS</div><div class="mv vd" id="ih-total-items">0</div><div class="ms">In stock</div></div>
-      <div class="mc"><div class="ml">LOW STOCK</div><div class="mv vr" id="ih-low">0</div><div class="ms">Below minimum</div></div>
-      <div class="mc"><div class="ml">TOTAL VALUE</div><div class="mv vg" id="ih-value">KWD 0.000</div><div class="ms">Cost value</div></div>
-    </div>
-    <div class="ph" style="margin-bottom:14px">
-      <div class="sw" style="margin:0;flex:1;max-width:360px"><span class="sic">&#128269;</span><input class="si" placeholder="Search hospitality items..." id="ih-s" oninput="rInv2()"></div>
-      <button class="btn btg" onclick="openInvModal('hospitality')">+ Add item</button>
-    </div>
-    <div class="tc"><div class="tw"><table>
-      <thead><tr><th>Item</th><th>Unit</th><th>Qty in Stock</th><th>Min Stock</th><th>Unit Cost (KWD)</th><th>Total Value</th><th>Last Updated</th><th>Status</th><th></th></tr></thead>
-      <tbody id="ih-tb"></tbody>
-    </table></div></div>
-  </div>
-</div>
-
 <!-- BALANCE SHEET -->
 <div class="page" id="page-balance">
   <div class="ph"><div class="phl"><h2>Balance Sheet</h2><p id="bal-d">As of today</p></div><button class="btn btg" onclick="openM('ast-m')">+ Add asset</button></div>
@@ -616,16 +506,12 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 <div class="mf"><button class="btn" onclick="closeM('exp-m')">Cancel</button><button class="btn btg" onclick="saveExp()">Save</button></div></div></div>
 
 <div class="mo" id="inv-m"><div class="md" style="width:580px"><div class="mh"><h3>&#129534; New invoice</h3><button class="mx" onclick="closeM('inv-m')">&#10005;</button></div>
-<div class="fg"><div><label>Client</label><select id="in-c"><option value="">-- Select --</option></select></div><div><label>Date</label><input type="date" id="in-dt"></div><div><label>Payment Method</label><select id="in-py"><option value="cash">Cash</option><option value="card">Card / KNET</option></select></div><div><label>Status</label><select id="in-st"><option value="paid">Paid</option><option value="pending">Pending</option><option value="overdue">Overdue</option></select></div><div><label>Assigned Therapist</label><select id="in-th"><option value="">-- None / Walk-in --</option></select></div><div class="full"><label>Notes</label><input id="in-n" placeholder="Optional"></div></div>
+<div class="fg"><div><label>Invoice # <span style="font-size:10px;color:var(--mu)">(editable)</span></label><input id="in-num" placeholder="e.g. INV-001" style="font-weight:600"></div><div><label>Date</label><input type="date" id="in-dt"></div><div><label>Client Name</label><input id="in-c" placeholder="Client name (optional)"></div><div><label>Client Phone</label><input id="in-cp" placeholder="+965 XXXX XXXX"></div><div><label>Payment Method</label><select id="in-py"><option value="cash">Cash</option><option value="card">Card / KNET</option></select></div><div><label>Status</label><select id="in-st"><option value="paid">Paid</option><option value="pending">Pending</option><option value="overdue">Overdue</option></select></div><div><label>Assigned Therapist</label><select id="in-th"><option value="">-- None / Walk-in --</option></select></div><div class="full"><label>Notes</label><input id="in-n" placeholder="Optional"></div></div>
 <div class="fsl">Services</div>
 <div id="in-svcs"></div>
 <button class="btn bts" style="margin-top:8px" onclick="addIS()">+ Add service</button>
 <div style="text-align:right;margin-top:12px;padding-top:12px;border-top:.5px solid var(--bd)"><span style="font-size:12px;color:var(--mu)">Total: </span><strong id="in-tot" style="font-size:16px;color:var(--gn)">KWD 0.000</strong></div>
 <div class="mf"><button class="btn" onclick="closeM('inv-m')">Cancel</button><button class="btn btg" onclick="saveInv()">Save</button></div></div></div>
-
-<div class="mo" id="cli-m"><div class="md" style="width:420px"><div class="mh"><h3>&#128100; Add client</h3><button class="mx" onclick="closeM('cli-m')">&#10005;</button></div>
-<div class="fg"><div class="full"><label>Full name *</label><input id="cl-n" placeholder="Client name"></div><div><label>Phone</label><input id="cl-p" placeholder="+965 XXXX XXXX"></div><div><label>Date</label><input type="date" id="cl-dt"></div><div class="full"><label>Notes</label><textarea id="cl-no" rows="2"></textarea></div></div>
-<div class="mf"><button class="btn" onclick="closeM('cli-m')">Cancel</button><button class="btn btg" onclick="saveCli()">Save</button></div></div></div>
 
 <div class="mo" id="ast-m"><div class="md" style="width:420px"><div class="mh"><h3>&#128230; Add asset</h3><button class="mx" onclick="closeM('ast-m')">&#10005;</button></div>
 <div class="fg"><div class="full"><label>Item name *</label><input id="as-n" placeholder="Asset name"></div><div><label>Category</label><select id="as-c"><option value="fixed">Fixed Asset</option><option value="current">Current Asset</option></select></div><div><label>Value (KWD) *</label><input type="number" id="as-v" step="0.001" min="0"></div><div><label>Date</label><input type="date" id="as-d"></div><div class="full"><label>Notes</label><input id="as-no" placeholder="Optional"></div></div>
@@ -708,7 +594,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const MNF=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const EC={consumables:"Consumables",tools:"Tools",machines:"Machines",laundry:"Laundry",maintenance:"Maintenance",delivery:"Delivery & Transportation",other:"Other"};
-let S={clients:[],invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{}};
+let S={invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{}};
 function sv(){try{localStorage.setItem("spa_mg2",JSON.stringify(S));}catch(e){}}
 function ld(){try{const d=localStorage.getItem("spa_mg2");if(d)S=JSON.parse(d);}catch(e){}}
 function td(){return new Date().toISOString().split("T")[0];}
@@ -725,7 +611,7 @@ document.querySelectorAll(".mo").forEach(m=>m.addEventListener("click",e=>{if(e.
 let dFn=null;
 document.getElementById("del-btn").onclick=()=>{if(dFn){dFn();dFn=null;}closeM("del-m");};
 function cfDel(fn){dFn=fn;openM("del-m");}
-const pgM={dashboard:{t:"Dashboard",s:"Signature SPA Men — business overview"},monthly:{t:"Monthly Report",s:""},daily:{t:"Daily Report",s:""},rent:{t:"Rent & Salaries",s:""},expenses:{t:"Expenses",s:"Shared — not for specific client"},crep:{t:"Client Reports",s:""},threp:{t:"Therapist Reports",s:"Monthly job assignments & performance"},invoices:{t:"Invoices",s:""},clients:{t:"Clients",s:""},inventory:{t:"Inventory",s:"Consumables · Tools · Hospitality"},balance:{t:"Balance Sheet",s:""},reports:{t:"Reports & Export",s:"P&L · XBRL · Excel"}};
+const pgM={dashboard:{t:"Dashboard",s:"Signature SPA Men — business overview"},monthly:{t:"Monthly Report",s:""},daily:{t:"Daily Report",s:""},rent:{t:"Rent & Salaries",s:""},expenses:{t:"Expenses",s:"Shared — not for specific client"},threp:{t:"Therapist Reports",s:"Monthly job assignments & performance"},invoices:{t:"Invoices",s:""},inventory:{t:"Inventory",s:"Consumables · Tools · Hospitality"},balance:{t:"Balance Sheet",s:""},reports:{t:"Reports & Export",s:"P&L · XBRL · Excel"}};
 document.querySelectorAll(".sb-item").forEach(item=>{
   item.addEventListener("click",()=>{
     document.querySelectorAll(".sb-item").forEach(n=>n.classList.remove("active"));
@@ -745,9 +631,7 @@ function onEnt(pg){
   if(pg==="monthly")rMon();
   if(pg==="rent"){rRent();rEmp();rSH();}
   if(pg==="expenses")rExp();
-  if(pg==="crep")rCR();
   if(pg==="invoices")rInv();
-  if(pg==="clients")rCli();
   if(pg==="threp")rThRep();
   if(pg==="inventory")rInv2();
   if(pg==="reports")rXBRL();
@@ -784,7 +668,7 @@ function rDash(){
   set("d-pnds",pend.length+" unpaid");set("d-inv",invs.length);
   set("d-ren",fk(mR));set("d-sal",fk(mS));
   set("d-sals",S.employees.filter(e=>e.status==="active").length+" employees");
-  set("d-shr",fk(mSh));set("d-cln",S.clients.length);
+  set("d-shr",fk(mSh));set("d-cln",S.invoices.length);
   const m6=[];for(let i=5;i>=0;i--){const d=new Date(nowM.getFullYear(),nowM.getMonth()-i,1);m6.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));}
   const iA=m6.map(m=>sa(S.invoices.filter(i=>i.status==="paid"&&gm(i.date)===m)));
   const eA=m6.map(m=>sa(S.expenses.filter(e=>gm(e.date)===m)));
@@ -838,7 +722,7 @@ function rMon(){
   const mxC=Math.max(...Object.values(ct),1),lbs={...EC,salary:"Salary",rent:"Rent"};
   document.getElementById("mr-bd").innerHTML=Object.entries(ct).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="bdr"><span class="bdl">${lbs[k]||k}</span><div class="bdb"><div class="bdf" style="width:${(v/mxC)*100}%"></div></div><span class="bdv">${fk(v)}</span></div>`).join("")||'<div class="em">No expenses</div>';
   const ct2={};mpi.forEach(i=>{const c=i.clientName||"?";if(!ct2[c])ct2[c]={n:c,ph:"",amt:0};ct2[c].amt+=(parseFloat(i.amount)||0);});
-  S.clients.forEach(c=>{if(ct2[c.name])ct2[c.name].ph=c.phone||"";});
+
   document.getElementById("mr-tc").innerHTML=Object.values(ct2).sort((a,b)=>b.amt-a.amt).slice(0,5).map(c=>`<tr><td>${c.n}</td><td>${c.ph||"---"}</td><td class="ag">${fk(c.amt)}</td></tr>`).join("")||'<tr><td colspan="3" class="em">No invoices</td></tr>';
   document.getElementById("mr-iv").innerHTML=mi.slice(0,6).map(i=>`<tr><td style="font-size:12px;color:var(--mu)">#${String(i.id).slice(-4)}</td><td>${i.clientName||"---"}</td><td><span class="badge ${i.payment==="cash"?"bdgg":"bdbl"}">${i.payment||"---"}</span></td><td class="ag">${fk(i.amount)}</td></tr>`).join("")||'<tr><td colspan="4" class="em">No invoices</td></tr>';
 }
@@ -1109,15 +993,25 @@ function onSvcSelect(id){
 }
 function removeIS(id){isvRows=isvRows.filter(r=>r!==id);const el=document.getElementById("isv-"+id);if(el)el.remove();calcIT();}
 function calcIT(){let t=0;isvRows.forEach(id=>{t+=parseFloat(document.getElementById("isp-"+id)?.value)||0;});document.getElementById("in-tot").textContent=fk(t);}
-function rID(){
-  const sel=document.getElementById("in-c");
-  sel.innerHTML='<option value="">-- Select --</option>'+S.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
-  const thSel=document.getElementById("in-th");
-  thSel.innerHTML='<option value="">-- None / Walk-in --</option>'+S.employees.filter(e=>e.status==="active").map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+function openNewInv(){
+  // Auto-generate next invoice number
+  const nums=S.invoices.map(i=>{
+    const m=String(i.invNum||"").match(/(\d+)$/);
+    return m?parseInt(m[1]):0;
+  });
+  const next=Math.max(0,...nums)+1;
+  const pad=String(next).padStart(3,"0");
+  document.getElementById("in-num").value="INV-"+pad;
+  // Refresh therapist list
+  const th=document.getElementById("in-th");
+  th.innerHTML='<option value="">-- None / Walk-in --</option>'+S.employees.filter(e=>e.status==="active").map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+  document.getElementById("in-c").value="";
+  document.getElementById("in-cp").value="";
 }
 function saveInv(){
-  const cid=parseInt(document.getElementById("in-c").value)||0;
-  const cl=S.clients.find(c=>c.id===cid);
+  const clientName=document.getElementById("in-c").value.trim();
+  const clientPhone=document.getElementById("in-cp").value.trim();
+  const invNum=document.getElementById("in-num").value.trim()||("INV-"+String(S.invoices.length+1).padStart(3,"0"));
   const thId=document.getElementById("in-th").value;
   const thEmp=S.employees.find(e=>e.id===parseInt(thId));
   const svcs=isvRows.map(id=>{
@@ -1134,10 +1028,9 @@ function saveInv(){
     return {name:svcName,price:parseFloat(document.getElementById("isp-"+id)?.value)||0,therapistId:thSvcId||thId||"",therapistName:thSvcEmp?thSvcEmp.name:thEmp?thEmp.name:""};
   }).filter(s=>s.name&&s.price>0);
   const total=svcs.reduce((s,r)=>s+r.price,0);
-  if(!cl)return alert("Select a client.");
   if(!svcs.length)return alert("Add at least one service.");
-  S.invoices.push({id:Date.now(),clientId:cid,clientName:cl.name,clientPhone:cl.phone||"",therapistId:thId||"",therapistName:thEmp?thEmp.name:"",services:svcs,amount:total,date:document.getElementById("in-dt").value,payment:document.getElementById("in-py").value,status:document.getElementById("in-st").value,notes:document.getElementById("in-n").value});
-  isvRows=[];document.getElementById("in-svcs").innerHTML="";document.getElementById("in-tot").textContent="KWD 0.000";
+  S.invoices.push({id:Date.now(),invNum,clientName,clientPhone,therapistId:thId||"",therapistName:thEmp?thEmp.name:"",services:svcs,amount:total,date:document.getElementById("in-dt").value,payment:document.getElementById("in-py").value,status:document.getElementById("in-st").value,notes:document.getElementById("in-n").value});
+  isvRows=[];document.getElementById("in-svcs").innerHTML="";document.getElementById("in-tot").textContent="KWD 0.000";document.getElementById("in-c").value="";document.getElementById("in-cp").value="";
   sv();rInv();closeM("inv-m");alert("Invoice saved!");
 }
 function rInv(){
@@ -1148,7 +1041,7 @@ function rInv(){
   tb.innerHTML=rows.map((v,i)=>{
     const ths=[...new Set((v.services||[]).map(s=>s.therapistName).filter(Boolean))];
     const thDisplay=ths.length?ths.join(", "):v.therapistName||"---";
-    return `<tr><td style="color:var(--mu);font-size:12px">#${String(v.id).slice(-4)}</td><td><strong>${v.clientName||"---"}</strong></td><td style="font-size:12px">${(v.services||[]).map(s=>s.name).join(", ")||"---"}</td><td style="font-size:12px;color:var(--gnt)">${thDisplay}</td><td class="ag">${fk(v.amount)}</td><td>${fd(v.date)}</td><td><span class="badge ${v.payment==="cash"?"bdgg":"bdbl"}">${v.payment||"---"}</span></td><td><span class="badge ${v.status==="paid"?"bdgg":v.status==="pending"?"bdam":"bdrr"}">${v.status}</span></td><td style="display:flex;gap:6px"><span class="tl" data-i="${i}">View</span><span class="tl" data-i2="${i}">&#8633;</span><span class="td2" data-i3="${i}">Del</span></td></tr>`;
+    return `<tr><td style="color:var(--mu);font-size:12px;font-weight:600">${v.invNum||"#"+String(v.id).slice(-4)}</td><td><strong>${v.clientName||"---"}</strong></td><td style="font-size:12px">${(v.services||[]).map(s=>s.name).join(", ")||"---"}</td><td style="font-size:12px;color:var(--gnt)">${thDisplay}</td><td class="ag">${fk(v.amount)}</td><td>${fd(v.date)}</td><td><span class="badge ${v.payment==="cash"?"bdgg":"bdbl"}">${v.payment||"---"}</span></td><td><span class="badge ${v.status==="paid"?"bdgg":v.status==="pending"?"bdam":"bdrr"}">${v.status}</span></td><td style="display:flex;gap:6px"><span class="tl" data-i="${i}">View</span><span class="tl" data-i2="${i}">&#8633;</span><span class="td2" data-i3="${i}">Del</span></td></tr>`;
   }).join("");
   tb.querySelectorAll("[data-i]").forEach(el=>el.onclick=()=>viewInv(rows[parseInt(el.dataset.i)].id));
   tb.querySelectorAll("[data-i2]").forEach(el=>el.onclick=()=>{const v=rows[parseInt(el.dataset.i2)];const cy=["pending","paid","overdue"];v.status=cy[(cy.indexOf(v.status)+1)%cy.length];sv();rInv();});
@@ -1159,36 +1052,6 @@ function viewInv(id){
   const overallTh=v.therapistName||"";
   document.getElementById("iv-c").innerHTML=`<div style="font-family:serif"><div style="display:flex;justify-content:space-between;margin-bottom:18px"><div><img src="data:image/png;base64,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" alt="Signature SPA" style="height:44px;width:auto;display:block;margin-bottom:3px"><div style="font-size:11px;color:var(--mu);letter-spacing:1px">KUWAIT</div></div><div style="text-align:right"><div style="font-size:15px;font-weight:600">#${String(v.id).slice(-4)}</div><div style="font-size:12px;color:var(--mu)">${fd(v.date)}</div></div></div><div style="background:var(--cream);border-radius:6px;padding:10px 14px;margin-bottom:16px"><div style="font-size:11px;color:var(--mu)">Bill To</div><div style="font-size:15px;font-weight:600">${v.clientName}</div>${v.clientPhone?`<div style="font-size:12px;color:var(--mu)">${v.clientPhone}</div>`:""}</div><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="border-bottom:1.5px solid #1C2B1E"><th style="text-align:left;padding:8px">Service</th><th style="text-align:left;padding:8px">Therapist</th><th style="text-align:right;padding:8px">Amount</th></tr></thead><tbody>${(v.services||[]).map(s=>`<tr><td style="padding:8px">${s.name}</td><td style="padding:8px;font-size:12px;color:var(--gnt)">${s.therapistName||overallTh||"---"}</td><td style="text-align:right;padding:8px">${fk(s.price)}</td></tr>`).join("")}</tbody></table><div style="text-align:right;font-size:16px;font-weight:700;color:var(--gn);margin-top:10px">Total: ${fk(v.amount)}</div><div style="margin-top:10px;font-size:12px;color:var(--mu);border-top:.5px solid var(--bd);padding-top:8px">Payment: <strong>${(v.payment||"").toUpperCase()}</strong> &middot; Status: <strong>${v.status}</strong>${overallTh?` &middot; Therapist: <strong>${overallTh}</strong>`:""}</div><div style="text-align:center;font-size:11px;color:var(--mu);margin-top:12px">Thank you for visiting Signature SPA Men</div></div>`;
   openM("iv-m");
-}
-function saveCli(){
-  const n=document.getElementById("cl-n").value.trim();if(!n)return alert("Name required.");
-  S.clients.push({id:Date.now(),name:n,phone:document.getElementById("cl-p").value,date:document.getElementById("cl-dt").value,notes:document.getElementById("cl-no").value});
-  sv();rCli();closeM("cli-m");document.getElementById("cl-n").value="";
-}
-function rCli(){
-  const srch=(document.getElementById("cl-s")||{}).value||"";
-  const rows=S.clients.filter(c=>!srch||c.name.toLowerCase().includes(srch.toLowerCase()));
-  const tb=document.getElementById("cli-tb");
-  if(!rows.length){tb.innerHTML='<tr><td colspan="6" class="em">No clients</td></tr>';return;}
-  tb.innerHTML=rows.map((c,i)=>{const ci=S.invoices.filter(x=>x.clientId===c.id);const bl=sa(ci.filter(x=>x.status==="paid"));return `<tr><td><strong>${c.name}</strong></td><td>${c.phone||"---"}</td><td>${fd(c.date)}</td><td>${ci.length}</td><td class="ag">${fk(bl)}</td><td><span class="td2" data-i="${i}">Del</span></td></tr>`;}).join("");
-  tb.querySelectorAll(".td2").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i);cfDel(()=>{S.clients.splice(i,1);sv();rCli();});});
-}
-function rCR(){
-  const sel=document.getElementById("cr-f");
-  const months=new Set(S.invoices.map(i=>gm(i.date)).filter(Boolean));
-  sel.innerHTML='<option value="all">All time</option>'+[...months].sort().reverse().map(m=>`<option value="${m}">${fm(m)}</option>`).join("");
-  const flt=sel.value||"all";
-  const cd={};
-  S.clients.forEach(c=>{cd[c.id]={name:c.name,phone:c.phone||"",invs:[]};});
-  S.invoices.forEach(i=>{if(flt!=="all"&&gm(i.date)!==flt)return;if(!cd[i.clientId])cd[i.clientId]={name:i.clientName||"?",phone:"",invs:[]};cd[i.clientId].invs.push(i);});
-  const entries=Object.values(cd).filter(c=>c.invs.length>0).map(c=>{
-    const pi=c.invs.filter(i=>i.status==="paid"),inc=sa(pi),rem=sa(c.invs.filter(i=>i.status!=="paid")),profit=inc,margin=inc>0?Math.round((profit/inc)*100):0;
-    const ini=c.name.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
-    return{name:c.name,phone:c.phone,inc,profit,margin,rem,ini,visits:c.invs.length};
-  }).sort((a,b)=>b.inc-a.inc);
-  const g=document.getElementById("cr-g");
-  if(!entries.length){g.innerHTML='<div class="em" style="grid-column:1/-1">No client data yet</div>';return;}
-  g.innerHTML=entries.map(e=>`<div class="crc"><div class="crh"><div class="crav">${e.ini}</div><div><div class="crn">${e.name}</div><div class="crs">${e.phone||"---"}</div></div></div><div class="crst"><div><div class="csl">INCOME</div><div class="csv g">${e.inc.toFixed(3)}</div></div><div><div class="csl">PROFIT</div><div class="csv g">${e.profit.toFixed(3)}</div></div><div><div class="csl">VISITS</div><div class="csv">${e.visits}</div></div></div><div class="crm"><span>${e.margin}% margin</span><span style="color:var(--am)">Rem ${e.rem.toFixed(3)}</span></div><div class="crp"><div class="crpf" style="width:${Math.min(100,e.margin)}%"></div></div></div>`).join("");
 }
 function saveAst(){
   const n=document.getElementById("as-n").value.trim(),v=parseFloat(document.getElementById("as-v").value)||0;
