@@ -393,7 +393,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
   <div class="tp" id="tab-et">
     <div class="ph"><span style="font-size:14px;font-weight:600">Employees &amp; Salaries</span>
       <div style="display:flex;gap:8px">
-        <button class="btn btg" onclick="openM('emp-m')">+ Add employee</button>
+        <button class="btn btg" onclick="openEmpModal()">+ Add employee</button>
         <button class="btn" onclick="rSD();openM('sal-m')">+ Record salary</button>
       </div>
     </div>
@@ -633,7 +633,8 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 <div class="fg"><div class="full"><label>Description</label><input id="r-d" placeholder="e.g. SPA monthly rent"></div><div><label>Amount (KWD) *</label><input type="number" id="r-a" step="0.001" min="0"></div><div><label>For month</label><input type="month" id="r-m"></div><div class="full"><label>Date paid</label><input type="date" id="r-dt"></div></div>
 <div class="mf"><button class="btn" onclick="closeM('rent-m')">Cancel</button><button class="btn btg" onclick="saveRent()">Save</button></div></div></div>
 
-<div class="mo" id="emp-m"><div class="md"><div class="mh"><h3>&#128188; Add employee</h3><button class="mx" onclick="closeM('emp-m')">&#10005;</button></div>
+<div class="mo" id="emp-m"><div class="md"><div class="mh"><h3 id="emp-m-title">&#128188; Add employee</h3><button class="mx" onclick="closeM('emp-m')">&#10005;</button></div>
+<input type="hidden" id="em-id">
 <div class="fg"><div class="full"><label>Full name *</label><input id="em-n" placeholder="Employee full name"></div><div><label>Role</label><input id="em-r" placeholder="e.g. Therapist"></div><div><label>Base salary (KWD/mo)</label><input type="number" id="em-s" step="0.001" min="0"></div><div><label>Phone</label><input id="em-p" placeholder="+965 XXXX XXXX"></div><div><label>Civil ID</label><input id="em-c" placeholder="Civil ID number"></div><div><label>Hire Date</label><input type="date" id="em-h"></div><div><label>Status</label><select id="em-st"><option value="active">Active</option><option value="inactive">Inactive</option></select></div></div>
 <div class="mf"><button class="btn" onclick="closeM('emp-m')">Cancel</button><button class="btn btg" onclick="saveEmp()">Save</button></div></div></div>
 
@@ -919,11 +920,54 @@ function rRent(){
   tb.innerHTML=rows.map((r,i)=>`<tr><td>${r.description||"Rent"}</td><td class="ag">${fk(r.amount)}</td><td>${fm(r.month)}</td><td>${fd(r.date)}</td><td><span class="td2" data-i="${i}">Del</span></td></tr>`).join("");
   tb.querySelectorAll(".td2").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i);cfDel(()=>{S.rent=S.rent.filter(x=>x.id!==rows[i].id);sv();rRent();});});
 }
+function openEmpModal(editId){
+  const isEdit = !!editId;
+  document.getElementById("emp-m-title").innerHTML = isEdit ? "&#9999;&#65039; Edit employee" : "&#128188; Add employee";
+  document.getElementById("em-id").value = editId || "";
+  if(isEdit){
+    const emp = S.employees.find(e=>e.id===editId);
+    if(!emp) return;
+    document.getElementById("em-n").value = emp.name || "";
+    document.getElementById("em-r").value = emp.role || "";
+    document.getElementById("em-s").value = emp.salary || "";
+    document.getElementById("em-p").value = emp.phone || "";
+    document.getElementById("em-c").value = emp.civil || "";
+    document.getElementById("em-h").value = emp.hire || "";
+    document.getElementById("em-st").value = emp.status || "active";
+  } else {
+    document.getElementById("em-n").value = "";
+    document.getElementById("em-r").value = "";
+    document.getElementById("em-s").value = "";
+    document.getElementById("em-p").value = "";
+    document.getElementById("em-c").value = "";
+    document.getElementById("em-h").value = td();
+    document.getElementById("em-st").value = "active";
+  }
+  openM("emp-m");
+}
 function saveEmp(){
   const n=document.getElementById("em-n").value.trim();
   if(!n)return alert("Name required.");
-  S.employees.push({id:Date.now(),name:n,role:document.getElementById("em-r").value,salary:parseFloat(document.getElementById("em-s").value)||0,phone:document.getElementById("em-p").value,civil:document.getElementById("em-c").value,hire:document.getElementById("em-h").value,status:document.getElementById("em-st").value});
-  sv();rEmp();closeM("emp-m");document.getElementById("em-n").value="";
+  const editId = document.getElementById("em-id").value;
+  const data = {
+    name: n,
+    role: document.getElementById("em-r").value,
+    salary: parseFloat(document.getElementById("em-s").value)||0,
+    phone: document.getElementById("em-p").value,
+    civil: document.getElementById("em-c").value,
+    hire: document.getElementById("em-h").value,
+    status: document.getElementById("em-st").value
+  };
+  if(editId){
+    // Edit existing
+    const idx = S.employees.findIndex(e=>e.id===parseInt(editId));
+    if(idx>=0){ S.employees[idx] = {...S.employees[idx], ...data}; }
+  } else {
+    // Add new
+    S.employees.push({id:Date.now(), ...data});
+  }
+  sv(); rEmp(); closeM("emp-m");
+}
 }
 function rEmp(){
   const tb=document.getElementById("emp-tb");
@@ -932,14 +976,17 @@ function rEmp(){
     const daily=(e.salary||0)/30;
     const hourly=daily/8;
     return `<tr>
-      <td><strong>${e.name}</strong></td>
+      <td><strong>${e.name}</strong>${e.phone?`<br><span style="font-size:11px;color:var(--mu)">${e.phone}</span>`:""}</td>
       <td style="font-family:monospace;font-size:12px">${e.civil||"---"}</td>
       <td>${e.role||"---"}</td>
       <td>${fd(e.hire)}</td>
-      <td class="ag">${fk(e.salary)}</td>
-      <td style="font-size:12px;color:var(--mu)">${fk(hourly)}<span style="color:var(--mu)">/hr</span> &nbsp;<span style="color:var(--bd2)">|</span>&nbsp; ${fk(daily)}<span style="color:var(--mu)">/day</span></td>
+      <td><strong class="ag">${fk(e.salary)}</strong></td>
+      <td style="font-size:12px;color:var(--mu)">${fk(hourly)}<span>/hr</span> &nbsp;|&nbsp; ${fk(daily)}<span>/day</span></td>
       <td><span class="badge ${e.status==="active"?"bdgg":"bdgr"}">${e.status}</span></td>
-      <td><span class="td2" data-i="${i}">Del</span></td>
+      <td style="display:flex;gap:6px">
+        <span class="tl" onclick="openEmpModal(${e.id})">Edit</span>
+        <span class="td2" data-i="${i}">Del</span>
+      </td>
     </tr>`;
   }).join("");
   tb.querySelectorAll(".td2").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i);cfDel(()=>{S.employees.splice(i,1);sv();rEmp();});});
