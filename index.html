@@ -794,55 +794,54 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const MNF=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const EC={consumables:"Consumables",tools:"Tools",machines:"Machines",laundry:"Laundry",maintenance:"Maintenance",delivery:"Delivery & Transportation",other:"Other"};
-let S={invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{}};
-function sv(){try{localStorage.setItem("spa_mg2",JSON.stringify(S));}catch(e){}}
-function ld(){try{const d=localStorage.getItem("spa_mg2");if(d)S=JSON.parse(d);}catch(e){}}
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MULTI-BRANCH ARCHITECTURE
-// ═══════════════════════════════════════════════════════════════════════════════
-const BRANCHES = [
-  {id:"ahm", name:"Alhamra Men Branch",   short:"Alhamra Men",   key:"spa_ahm_v1", color:"#1C3A5A"},
-  {id:"ahw", name:"Alhamra Women Branch", short:"Alhamra Women", key:"spa_ahw_v1", color:"#5A1C3A"},
-  {id:"khr", name:"Al-Khairan Men Branch",short:"Al-Khairan Men",key:"spa_khr_v1", color:"#1A5A28"},
+// ── Branch definitions — must be at top before sv/ld ──────────────────────────
+const BRANCHES=[
+  {id:"ahm",name:"Alhamra Men Branch",  short:"Alhamra Men",  key:"spa_ahm_v1",color:"#1C3A5A"},
+  {id:"ahw",name:"Alhamra Women Branch",short:"Alhamra Women",key:"spa_ahw_v1",color:"#5A1C3A"},
+  {id:"khr",name:"Al-Khairan Men Branch",short:"Al-Khairan Men",key:"spa_khr_v1",color:"#1A5A28"},
 ];
-const COMBINED_ID = "all";
-let curBranch = localStorage.getItem("spa_cur_branch") || "ahm";
+const COMBINED_ID="all";
+let curBranch=localStorage.getItem("spa_cur_branch")||"ahm";
+const BD={};
+function _emptyState(){return {invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{},inventory:{consumables:[],tools:[],hospitality:[]},dailyNotes:{}};}
 
-// Load all branches' data into memory
-const BD = {}; // BD[branchId] = S-like object
-function loadAllBranches(){
-  BRANCHES.forEach(b=>{
-    try{
-      const d=localStorage.getItem(b.key);
-      BD[b.id]=d?JSON.parse(d):{invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{},inventory:{consumables:[],tools:[],hospitality:[]},dailyNotes:{}};
-    }catch(e){
-      BD[b.id]={invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{},inventory:{consumables:[],tools:[],hospitality:[]},dailyNotes:{}};
-    }
-  });
-}
-
-// sv/ld now branch-aware
+let S=_emptyState();
 function sv(){
   try{
-    if(curBranch!==COMBINED_ID){
-      const b=BRANCHES.find(b=>b.id===curBranch);
-      if(b){localStorage.setItem(b.key,JSON.stringify(S));BD[curBranch]=JSON.parse(JSON.stringify(S));}
-    }
+    const b=BRANCHES.find(b=>b.id===curBranch);
+    if(b){localStorage.setItem(b.key,JSON.stringify(S));if(BD)BD[curBranch]=JSON.parse(JSON.stringify(S));}
   }catch(e){}
 }
 function ld(){
   try{
-    if(curBranch!==COMBINED_ID){
-      const b=BRANCHES.find(b=>b.id===curBranch);
-      if(b){const d=localStorage.getItem(b.key);if(d)S=JSON.parse(d);}
-    }
+    const b=BRANCHES.find(b=>b.id===curBranch);
+    if(b){const d=localStorage.getItem(b.key);if(d)S=JSON.parse(d);else S={invoices:[],expenses:[],rent:[],employees:[],salaries:[],assets:[],liabilities:[],entity:{},equity:{},inventory:{consumables:[],tools:[],hospitality:[]},dailyNotes:{}};}
   }catch(e){}
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// MULTI-BRANCH ARCHITECTURE — vars declared at top of script
+// ═══════════════════════════════════════════════════════════════════════════════
+function loadAllBranches(){
+  BRANCHES.forEach(b=>{
+    try{
+      const d=localStorage.getItem(b.key);
+      BD[b.id]=d?JSON.parse(d):_emptyState();
+    }catch(e){ BD[b.id]=_emptyState(); }
+  });
+}
+
+// sv/ld are defined at top of script and are already branch-aware
+
 function switchBranch(bid){
+  // Save current branch data before switching
+  if(curBranch!==COMBINED_ID) sv();
+  // Load new branch
   curBranch=bid;
   localStorage.setItem("spa_cur_branch",bid);
+  // Reset S to empty so no stale data bleeds through
+  S=_emptyState();
   loadAllBranches();
   if(bid!==COMBINED_ID){
     ld();
@@ -2246,13 +2245,14 @@ document.querySelectorAll("input[type=date]").forEach(i=>{if(!i.value)i.value=td
 document.querySelectorAll("input[type=month]").forEach(i=>{if(!i.value)i.value=nym();});
 // Load all branches into memory
 loadAllBranches();
+// Load current branch into S
+S=_emptyState();
+ld();
 // Set the branch selector to current branch
 const bSel=document.getElementById("branch-sel");
 if(bSel) bSel.value=curBranch;
 // Update UI labels
 updateBranchUI();
-// Load current branch data
-ld();
 rDash();
 </script>
 </body>
