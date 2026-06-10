@@ -168,9 +168,9 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
         <span id="branch-name-lbl" style="font-size:12px;font-weight:600;color:var(--tx)">Select Branch</span>
       </div>
       <select id="branch-sel" onchange="switchBranch(this.value)" style="padding:6px 12px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px;font-weight:500;background:#fff;cursor:pointer">
-        <option value="ahm">🏢 Alhambra Mall Men</option>
-        <option value="ahw">🏢 Alhambra Mall Women</option>
-        <option value="khr">🏢 Khairan Mall Men</option>
+        <option value="ahm">🏢 Alhamra Men Branch</option>
+        <option value="ahw">🏢 Alhamra Women Branch</option>
+        <option value="khr">🏢 Al-Khairan Men Branch</option>
         <option value="all">📊 All Branches (Combined)</option>
       </select>
       <button class="btn" style="background:#1C2B1E;color:#fff;border-color:#1C2B1E" onclick="exportData()">&#11015; Export</button>
@@ -802,9 +802,9 @@ function ld(){try{const d=localStorage.getItem("spa_mg2");if(d)S=JSON.parse(d);}
 // MULTI-BRANCH ARCHITECTURE
 // ═══════════════════════════════════════════════════════════════════════════════
 const BRANCHES = [
-  {id:"ahm", name:"Alhambra Mall Men",   short:"Alhambra Men",   key:"spa_ahm_v1", color:"#1C3A5A"},
-  {id:"ahw", name:"Alhambra Mall Women", short:"Alhambra Women", key:"spa_ahw_v1", color:"#5A1C3A"},
-  {id:"khr", name:"Khairan Mall Men",    short:"Khairan Men",    key:"spa_khr_v1", color:"#1A5A28"},
+  {id:"ahm", name:"Alhamra Men Branch",   short:"Alhamra Men",   key:"spa_ahm_v1", color:"#1C3A5A"},
+  {id:"ahw", name:"Alhamra Women Branch", short:"Alhamra Women", key:"spa_ahw_v1", color:"#5A1C3A"},
+  {id:"khr", name:"Al-Khairan Men Branch",short:"Al-Khairan Men",key:"spa_khr_v1", color:"#1A5A28"},
 ];
 const COMBINED_ID = "all";
 let curBranch = localStorage.getItem("spa_cur_branch") || "ahm";
