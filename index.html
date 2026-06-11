@@ -457,8 +457,11 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
       <div class="mc"><div class="ml">LAST MONTH</div><div class="mv vg" id="r-la">KWD 0.000</div></div>
       <div class="mc"><div class="ml">ALL TIME</div><div class="mv vg" id="r-al">KWD 0.000</div></div>
     </div>
-    <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btg" onclick="openM('rent-m')">+ Add rent</button></div>
-    <div class="tc"><div class="tw"><table><thead><tr><th>Description</th><th>Amount</th><th>Month</th><th>Date</th><th></th></tr></thead><tbody id="rent-tb"></tbody></table></div></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px">
+      <button class="btn bts" onclick="openRecordRent()">&#128196; Record Rent</button>
+      <button class="btn btg" onclick="openM('rent-m')">+ Add Rent Payment</button>
+    </div>
+    <div class="tc"><div class="tw"><table><thead><tr><th>Description</th><th>Amount</th><th>Month</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="rent-tb"></tbody></table></div></div>
   </div>
   <div class="tp" id="tab-et">
     <div class="ph"><span style="font-size:14px;font-weight:600">Employees &amp; Salaries</span>
@@ -641,6 +644,19 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 <div class="mo" id="rent-m"><div class="md" style="width:420px"><div class="mh"><h3>&#127968; Add rent payment</h3><button class="mx" onclick="closeM('rent-m')">&#10005;</button></div>
 <div class="fg"><div class="full"><label>Description</label><input id="r-d" placeholder="e.g. SPA monthly rent"></div><div><label>Amount (KWD) *</label><input type="number" id="r-a" step="0.001" min="0"></div><div><label>For month</label><input type="month" id="r-m"></div><div class="full"><label>Date paid</label><input type="date" id="r-dt"></div></div>
 <div class="mf"><button class="btn" onclick="closeM('rent-m')">Cancel</button><button class="btn btg" onclick="saveRent()">Save</button></div></div></div>
+
+
+<!-- RECORD RENT (pending - no amount yet) -->
+<div class="mo" id="rec-rent-m"><div class="md" style="width:420px"><div class="mh"><h3>&#128196; Record Rent</h3><button class="mx" onclick="closeM('rec-rent-m')">&#10005;</button></div>
+<div class="fg"><div class="full"><label>Description</label><input id="rr-d" placeholder="e.g. SPA monthly rent"></div><div><label>For month</label><input type="month" id="rr-m"></div><div><label>Due date (optional)</label><input type="date" id="rr-dt"></div></div>
+<div style="background:var(--aml);border-radius:var(--rs);padding:10px 12px;margin-top:6px;font-size:12px;color:var(--am)">&#9432; Records rent as <strong>Pending</strong> — won’t count in totals until marked paid.</div>
+<div class="mf"><button class="btn" onclick="closeM('rec-rent-m')">Cancel</button><button class="btn" style="background:var(--am);color:#fff;border-color:var(--am)" onclick="saveRecordRent()">Record</button></div></div></div>
+
+<!-- PAY RENT (fill amount for a pending entry) -->
+<div class="mo" id="pay-rent-m"><div class="md" style="width:420px"><div class="mh"><h3>&#128179; Mark Rent as Paid</h3><button class="mx" onclick="closeM('pay-rent-m')">&#10005;</button></div>
+<input type="hidden" id="pr-id">
+<div class="fg"><div class="full"><label>Description</label><input id="pr-d" disabled style="background:var(--cream)"></div><div><label>Amount Paid (KWD) *</label><input type="number" id="pr-a" step="0.001" min="0" placeholder="0.000"></div><div><label>Date Paid</label><input type="date" id="pr-dt"></div></div>
+<div class="mf"><button class="btn" onclick="closeM('pay-rent-m')">Cancel</button><button class="btn btg" onclick="savePayRent()">Mark as Paid</button></div></div></div>
 
 <div class="mo" id="emp-m"><div class="md"><div class="mh"><h3 id="emp-m-title">&#128188; Add employee</h3><button class="mx" onclick="closeM('emp-m')">&#10005;</button></div>
 <input type="hidden" id="em-id">
@@ -1204,18 +1220,62 @@ function rMon(){
 function saveRent(){
   const a=parseFloat(document.getElementById("r-a").value)||0;
   if(a<=0)return alert("Amount required.");
-  S.rent.push({id:Date.now(),description:document.getElementById("r-d").value||"Rent",amount:a,month:document.getElementById("r-m").value,date:document.getElementById("r-dt").value});
+  S.rent.push({id:Date.now(),description:document.getElementById("r-d").value||"Rent",amount:a,month:document.getElementById("r-m").value,date:document.getElementById("r-dt").value,status:"paid"});
   sv();rRent();closeM("rent-m");document.getElementById("r-a").value="";
+}
+function openRecordRent(){
+  document.getElementById("rr-d").value="";
+  document.getElementById("rr-m").value=nym();
+  document.getElementById("rr-dt").value="";
+  openM("rec-rent-m");
+}
+function saveRecordRent(){
+  const month=document.getElementById("rr-m").value;
+  if(!month)return alert("Month required.");
+  S.rent.push({id:Date.now(),description:document.getElementById("rr-d").value||"Rent",amount:0,month,date:document.getElementById("rr-dt").value||"",status:"pending"});
+  sv();rRent();closeM("rec-rent-m");
+}
+function openPayRent(id){
+  const r=S.rent.find(r=>r.id===id);
+  if(!r)return;
+  document.getElementById("pr-id").value=id;
+  document.getElementById("pr-d").value=r.description||"Rent";
+  document.getElementById("pr-a").value="";
+  document.getElementById("pr-dt").value=td();
+  openM("pay-rent-m");
+}
+function savePayRent(){
+  const id=parseInt(document.getElementById("pr-id").value);
+  const a=parseFloat(document.getElementById("pr-a").value)||0;
+  if(a<=0)return alert("Amount required.");
+  const idx=S.rent.findIndex(r=>r.id===id);
+  if(idx>=0){S.rent[idx].amount=a;S.rent[idx].date=document.getElementById("pr-dt").value;S.rent[idx].status="paid";}
+  sv();rRent();closeM("pay-rent-m");
 }
 function rRent(){
   const cm=nym(),pm=pym(cm);
-  const gM=ym=>sa(S.rent.filter(r=>(r.month||gm(r.date||""))===ym));
+  const paid=r=>r.status!=="pending";
+  const gM=ym=>sa(S.rent.filter(r=>paid(r)&&(r.month||gm(r.date||""))===ym));
   document.getElementById("r-th").textContent=fk(gM(cm));
   document.getElementById("r-la").textContent=fk(gM(pm));
-  document.getElementById("r-al").textContent=fk(sa(S.rent));
+  document.getElementById("r-al").textContent=fk(sa(S.rent.filter(paid)));
   const rows=[...S.rent].reverse(),tb=document.getElementById("rent-tb");
-  if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="em">No rent payments</td></tr>';return;}
-  tb.innerHTML=rows.map((r,i)=>`<tr><td>${r.description||"Rent"}</td><td class="ag">${fk(r.amount)}</td><td>${fm(r.month)}</td><td>${fd(r.date)}</td><td><span class="td2" data-i="${i}">Del</span></td></tr>`).join("");
+  if(!rows.length){tb.innerHTML='<tr><td colspan="6" class="em">No rent records</td></tr>';return;}
+  tb.innerHTML=rows.map((r,i)=>{
+    const isPending=r.status==="pending";
+    return `<tr>
+      <td>${r.description||"Rent"}</td>
+      <td class="${isPending?"":"ag"}" style="${isPending?"color:var(--mu);font-style:italic":""}">${isPending?"Not paid yet":fk(r.amount)}</td>
+      <td>${fm(r.month)}</td>
+      <td>${r.date?fd(r.date):"&#8212;"}</td>
+      <td><span class="badge ${isPending?"bdam":"bdgg"}">${isPending?"Pending":"Paid"}</span></td>
+      <td style="display:flex;gap:6px">
+        ${isPending?`<span class="tl" data-pay="${r.id}">Pay</span>`:""}
+        <span class="td2" data-i="${i}">Del</span>
+      </td>
+    </tr>`;
+  }).join("");
+  tb.querySelectorAll("[data-pay]").forEach(el=>el.onclick=()=>openPayRent(parseInt(el.dataset.pay)));
   tb.querySelectorAll(".td2").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i);cfDel(()=>{S.rent=S.rent.filter(x=>x.id!==rows[i].id);sv();rRent();});});
 }
 function openEmpModal(editId){
