@@ -947,8 +947,15 @@ function saveBranchPin(bid){
 }
 
 function removeBranchPin(bid){
-  if(!confirm("Remove PIN for this branch?")) return;
   const pins=getPins();
+  const current=pins[bid];
+  if(!current) return;
+  const entered=prompt("Enter the current PIN to remove it:");
+  if(entered===null) return; // cancelled
+  if(entered!==current){
+    alert("Incorrect PIN. PIN was not removed.");
+    return;
+  }
   delete pins[bid];
   setPins(pins);
   openPinSettings();
