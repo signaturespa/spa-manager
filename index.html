@@ -1006,7 +1006,7 @@ function rCombMon(){
   document.getElementById("cm-lbl").textContent=MNF2[cmD.getMonth()]+" "+cmD.getFullYear();
   const allInvs=getAllInvoices(i=>gm(i.date)===ym);
   const allExps=getAllExpenses(e=>gm(e.date)===ym);
-  const allRent=getAllRent(r=>(r.month||gm(r.date||""))===ym);
+  const allRent=getAllRent(r=>r.status!=="pending"&&(r.month||gm(r.date||""))===ym);
   const allSal=getAllSalaries(s=>s.month===ym);
   const inc=sa(allInvs.filter(i=>i.status==="paid"));
   const exp=sa(allExps)+sa(allRent)+sa(allSal);
@@ -1020,7 +1020,7 @@ function rCombMon(){
     const bInvs=(BD[b.id]?.invoices||[]).filter(i=>gm(i.date)===ym);
     const bPaid=bInvs.filter(i=>i.status==="paid");
     const bExps=(BD[b.id]?.expenses||[]).filter(e=>gm(e.date)===ym);
-    const bRent=(BD[b.id]?.rent||[]).filter(r=>(r.month||gm(r.date||""))===ym);
+    const bRent=(BD[b.id]?.rent||[]).filter(r=>r.status!=="pending"&&(r.month||gm(r.date||""))===ym);
     const bSal=(BD[b.id]?.salaries||[]).filter(s=>s.month===ym);
     const bInc=sa(bPaid),bExp=sa(bExps)+sa(bRent)+sa(bSal),bProfit=bInc-bExp;
     const days30=bInc/30;
@@ -1148,7 +1148,7 @@ function rDash(){
   const paid=invs.filter(i=>i.status==="paid"),pend=invs.filter(i=>i.status!=="paid");
   const inc=sa(paid),exp=sa(exps);
   const cm=nym();
-  const mR=sa(S.rent.filter(r=>(r.month||gm(r.date||""))===cm));
+  const mR=sa(S.rent.filter(r=>r.status!=="pending"&&(r.month||gm(r.date||""))===cm));
   const mS=sa(S.salaries.filter(s=>s.month===cm));
   const mSh=sa(S.expenses.filter(e=>gm(e.date)===cm));
   const profit=inc-exp-mR-mS;
@@ -1187,7 +1187,7 @@ function rMon(){
   const inc=sa(mpi),pI=sa(S.invoices.filter(i=>i.status==="paid"&&gm(i.date)===pm));
   const me=S.expenses.filter(e=>gm(e.date)===ym),ev=sa(me);
   const mS=sa(S.salaries.filter(s=>s.month===ym));
-  const mR=sa(S.rent.filter(r=>(r.month||gm(r.date||""))===ym));
+  const mR=sa(S.rent.filter(r=>r.status!=="pending"&&(r.month||gm(r.date||""))===ym));
   const tE=ev+mS+mR,profit=inc-tE,margin=inc>0?Math.round((profit/inc)*100):0;
   const cin=sa(S.invoices.filter(i=>i.status==="paid"&&gm(i.date)===ym));
   const cout=0;
@@ -1760,7 +1760,7 @@ function rBal(){
   const totA=faT+caT;
   const lt=S.liabilities.filter(l=>l.type==="lt"),st=S.liabilities.filter(l=>l.type==="st");
   const totL=[...lt,...st].reduce((s,l)=>s+(parseFloat(l.value)||0),0);
-  const profit=sa(S.invoices.filter(i=>i.status==="paid"))-sa(S.expenses)-sa(S.salaries)-sa(S.rent);
+  const profit=sa(S.invoices.filter(i=>i.status==="paid"))-sa(S.expenses)-sa(S.salaries)-sa(S.rent.filter(r=>r.status!=="pending"));
   const cap=parseFloat(document.getElementById("eq-c").value)||0,draw=parseFloat(document.getElementById("eq-d").value)||0,prior=parseFloat(document.getElementById("eq-p").value)||0;
   const equity=cap-draw+prior+profit;
   document.getElementById("bal-a").textContent=fk(totA);
@@ -1797,7 +1797,7 @@ function rXBRL(){
   if(e.end)document.getElementById("en-e").value=e.end||"";
   refreshXBRL();
 }
-function refreshXBRL(){const rev=sa(S.invoices.filter(i=>i.status==="paid")),sal=sa(S.salaries),rent=sa(S.rent);
+function refreshXBRL(){const rev=sa(S.invoices.filter(i=>i.status==="paid")),sal=sa(S.salaries),rent=sa(S.rent.filter(r=>r.status!=="pending"));
   const gE=cat=>sa(S.expenses.filter(e=>e.category===cat));
   const co=gE("consumables"),to=gE("tools"),ma=gE("machines"),la=gE("laundry"),mn=gE("maintenance"),tr=gE("delivery");
   const tE=sal+rent+co+to+ma+la+mn+tr,net=rev-tE;
