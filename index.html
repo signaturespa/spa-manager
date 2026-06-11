@@ -208,6 +208,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
   </div>
   <div class="mg" style="margin-top:0">
     <div class="mc"><div class="ml">&#127968; RENT (MONTH)</div><div class="mv vg" id="d-ren">KWD 0.000</div></div>
+    <div class="mc"><div class="ml">&#9203; PENDING RENT</div><div class="mv va" id="d-ren-pnd">KWD 0.000</div><div class="ms" id="d-ren-pnds">0 pending</div></div>
     <div class="mc"><div class="ml">&#128188; SALARIES (MONTH)</div><div class="mv vg" id="d-sal">KWD 0.000</div><div class="ms" id="d-sals">employees</div></div>
     <div class="mc"><div class="ml">&#129514; SHARED (MONTH)</div><div class="mv vg" id="d-shr">KWD 0.000</div></div>
     <div class="mc"><div class="ml">&#128100; CLIENTS</div><div class="mv vd" id="d-cln">0</div></div>
@@ -1149,6 +1150,8 @@ function rDash(){
   const inc=sa(paid),exp=sa(exps);
   const cm=nym();
   const mR=sa(S.rent.filter(r=>r.status!=="pending"&&(r.month||gm(r.date||""))===cm));
+  const pendRent=S.rent.filter(r=>r.status==="pending");
+  const pendRentAmt=sa(pendRent);
   const mS=sa(S.salaries.filter(s=>s.month===cm));
   const mSh=sa(S.expenses.filter(e=>gm(e.date)===cm));
   const profit=inc-exp-mR-mS;
@@ -1157,7 +1160,7 @@ function rDash(){
   set("d-pr",fk(profit));set("d-ps","Margin: "+margin+"% | Income: "+fk(inc));
   set("d-inc",fk(inc));set("d-exp",fk(exp));set("d-pnd",fk(sa(pend)));
   set("d-pnds",pend.length+" unpaid");set("d-inv",invs.length);
-  set("d-ren",fk(mR));set("d-sal",fk(mS));
+  set("d-ren",fk(mR));set("d-ren-pnd",fk(pendRentAmt));set("d-ren-pnds",pendRent.length+" pending");set("d-sal",fk(mS));
   set("d-sals",S.employees.filter(e=>e.status==="active").length+" employees");
   set("d-shr",fk(mSh));set("d-cln",S.invoices.length);
   const m6=[];for(let i=5;i>=0;i--){const d=new Date(nowM.getFullYear(),nowM.getMonth()-i,1);m6.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));}
