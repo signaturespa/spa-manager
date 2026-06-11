@@ -648,7 +648,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 
 <!-- RECORD RENT (pending - no amount yet) -->
 <div class="mo" id="rec-rent-m"><div class="md" style="width:420px"><div class="mh"><h3>&#128196; Record Rent</h3><button class="mx" onclick="closeM('rec-rent-m')">&#10005;</button></div>
-<div class="fg"><div class="full"><label>Description</label><input id="rr-d" placeholder="e.g. SPA monthly rent"></div><div><label>For month</label><input type="month" id="rr-m"></div><div><label>Due date (optional)</label><input type="date" id="rr-dt"></div></div>
+<div class="fg"><div class="full"><label>Description</label><input id="rr-d" placeholder="e.g. SPA monthly rent"></div><div><label>Amount (KWD) <span style="font-size:10px;color:var(--mu)">optional — leave blank if unknown</span></label><input type="number" id="rr-a" step="0.001" min="0" placeholder="0.000"></div><div><label>For month</label><input type="month" id="rr-m"></div><div><label>Due date (optional)</label><input type="date" id="rr-dt"></div></div>
 <div style="background:var(--aml);border-radius:var(--rs);padding:10px 12px;margin-top:6px;font-size:12px;color:var(--am)">&#9432; Records rent as <strong>Pending</strong> — won’t count in totals until marked paid.</div>
 <div class="mf"><button class="btn" onclick="closeM('rec-rent-m')">Cancel</button><button class="btn" style="background:var(--am);color:#fff;border-color:var(--am)" onclick="saveRecordRent()">Record</button></div></div></div>
 
@@ -1225,6 +1225,7 @@ function saveRent(){
 }
 function openRecordRent(){
   document.getElementById("rr-d").value="";
+  document.getElementById("rr-a").value="";
   document.getElementById("rr-m").value=nym();
   document.getElementById("rr-dt").value="";
   openM("rec-rent-m");
@@ -1232,7 +1233,8 @@ function openRecordRent(){
 function saveRecordRent(){
   const month=document.getElementById("rr-m").value;
   if(!month)return alert("Month required.");
-  S.rent.push({id:Date.now(),description:document.getElementById("rr-d").value||"Rent",amount:0,month,date:document.getElementById("rr-dt").value||"",status:"pending"});
+  const amt=parseFloat(document.getElementById("rr-a").value)||0;
+  S.rent.push({id:Date.now(),description:document.getElementById("rr-d").value||"Rent",amount:amt,month,date:document.getElementById("rr-dt").value||"",status:"pending"});
   sv();rRent();closeM("rec-rent-m");
 }
 function openPayRent(id){
@@ -1240,7 +1242,7 @@ function openPayRent(id){
   if(!r)return;
   document.getElementById("pr-id").value=id;
   document.getElementById("pr-d").value=r.description||"Rent";
-  document.getElementById("pr-a").value="";
+  document.getElementById("pr-a").value=r.amount>0?r.amount.toFixed(3):"";
   document.getElementById("pr-dt").value=td();
   openM("pay-rent-m");
 }
@@ -1265,7 +1267,7 @@ function rRent(){
     const isPending=r.status==="pending";
     return `<tr>
       <td>${r.description||"Rent"}</td>
-      <td class="${isPending?"":"ag"}" style="${isPending?"color:var(--mu);font-style:italic":""}">${isPending?"Not paid yet":fk(r.amount)}</td>
+      <td class="${isPending?"":"ag"}" style="${isPending?"color:var(--mu);font-style:italic":""}">${isPending&&r.amount===0?"Not paid yet":fk(r.amount)+(isPending?" (pending)":"")}</td>
       <td>${fm(r.month)}</td>
       <td>${r.date?fd(r.date):"&#8212;"}</td>
       <td><span class="badge ${isPending?"bdam":"bdgg"}">${isPending?"Pending":"Paid"}</span></td>
