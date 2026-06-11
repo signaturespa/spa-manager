@@ -146,7 +146,6 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
   <div class="sb-item" data-pg="rent">&#127968; Rent &amp; Salaries</div>
   <div class="sb-item" data-pg="expenses">&#128228; Expenses</div>
   <div class="sb-sec">Clients</div>
-  <div class="sb-item" data-pg="threp">&#129489; Therapist Reports</div>
   <div class="sb-item" data-pg="invoices">&#129534; Invoices</div>
   <div class="sb-item" data-pg="inventory">&#128230; Inventory</div>
   <div class="sb-sec">Combined View</div>
@@ -494,37 +493,6 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 
 <!-- CLIENTS -->
 <!-- THERAPIST REPORTS -->
-<div class="page" id="page-threp">
-  <div class="ph">
-    <div class="phl"><h2>Therapist Reports</h2><p>Monthly job assignments &amp; performance</p></div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <button class="btn bts" onclick="thNav(-1)">&#8249;</button>
-      <span id="th-lbl" style="font-size:14px;font-weight:600;min-width:110px;text-align:center"></span>
-      <button class="btn bts" onclick="thNav(1)">&#8250;</button>
-      <select id="th-emp-filter" style="padding:7px 12px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px" onchange="rThRep()">
-        <option value="">All Therapists</option>
-      </select>
-    </div>
-  </div>
-  <div class="mg" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
-    <div class="mc"><div class="ml">TOTAL JOBS</div><div class="mv vd" id="th-jobs">0</div><div class="ms">This month</div></div>
-    <div class="mc"><div class="ml">TOTAL REVENUE</div><div class="mv vg" id="th-rev">KWD 0.000</div><div class="ms">From assigned jobs</div></div>
-    <div class="mc"><div class="ml">ACTIVE THERAPISTS</div><div class="mv vd" id="th-active">0</div><div class="ms">Had jobs this month</div></div>
-    <div class="mc"><div class="ml">AVG PER THERAPIST</div><div class="mv vg" id="th-avg">KWD 0.000</div><div class="ms">Revenue avg</div></div>
-  </div>
-  <div class="crg" id="th-cards" style="margin-bottom:18px"></div>
-  <div class="tc">
-    <div class="tch" style="justify-content:space-between">
-      <span style="font-size:13px;font-weight:600">Job Detail</span>
-      <div class="sw" style="margin:0;width:240px"><span class="sic">&#128269;</span><input class="si" placeholder="Search therapist or client..." id="th-s" style="padding:6px 14px 6px 32px" oninput="rThRep()"></div>
-    </div>
-    <div class="tw"><table>
-      <thead><tr><th>Therapist</th><th>Role</th><th>Client</th><th>Service</th><th>Date</th><th>Payment</th><th class="text-right">Amount</th><th>Invoice</th></tr></thead>
-      <tbody id="th-tb"></tbody>
-    </table></div>
-  </div>
-</div>
-
 <!-- INVENTORY -->
 <div class="page" id="page-inventory">
   <div class="tab-bar">
@@ -1116,7 +1084,7 @@ document.querySelectorAll(".mo").forEach(m=>m.addEventListener("click",e=>{if(e.
 let dFn=null;
 document.getElementById("del-btn").onclick=()=>{if(dFn){dFn();dFn=null;}closeM("del-m");};
 function cfDel(fn){dFn=fn;openM("del-m");}
-const pgM={dashboard:{t:"Dashboard",s:"Signature SPA Men — business overview"},monthly:{t:"Monthly Report",s:""},daily:{t:"Daily Report",s:""},rent:{t:"Rent & Salaries",s:""},expenses:{t:"Expenses",s:"Shared — not for specific client"},threp:{t:"Therapist Reports",s:"Monthly job assignments & performance"},invoices:{t:"Invoices",s:""},inventory:{t:"Inventory",s:"Consumables · Tools · Hospitality"},"all-dash":{t:"All Branches",s:"Combined overview"},"all-monthly":{t:"Combined Monthly",s:"All branches"},"all-daily":{t:"Combined Daily",s:"All branches"},balance:{t:"Balance Sheet",s:""},reports:{t:"Reports & Export",s:"P&L · XBRL · Excel"}};
+const pgM={dashboard:{t:"Dashboard",s:"Signature SPA Men — business overview"},monthly:{t:"Monthly Report",s:""},daily:{t:"Daily Report",s:""},rent:{t:"Rent & Salaries",s:""},expenses:{t:"Expenses",s:"Shared — not for specific client"},invoices:{t:"Invoices",s:""},inventory:{t:"Inventory",s:"Consumables · Tools · Hospitality"},"all-dash":{t:"All Branches",s:"Combined overview"},"all-monthly":{t:"Combined Monthly",s:"All branches"},"all-daily":{t:"Combined Daily",s:"All branches"},balance:{t:"Balance Sheet",s:""},reports:{t:"Reports & Export",s:"P&L · XBRL · Excel"}};
 document.querySelectorAll(".sb-item").forEach(item=>{
   item.addEventListener("click",()=>{
     document.querySelectorAll(".sb-item").forEach(n=>n.classList.remove("active"));
@@ -1137,7 +1105,6 @@ function onEnt(pg){
   if(pg==="rent"){rRent();rEmp();rSH();}
   if(pg==="expenses")rExp();
   if(pg==="invoices")rInv();
-  if(pg==="threp")rThRep();
   if(pg==="inventory")rInv2();
   if(pg==="reports")rXBRL();
   if(pg==="all-dash")rCombDash();
@@ -2037,114 +2004,7 @@ function saveDailyNote(){
   if(btn){ const orig = btn.textContent; btn.textContent = '✓ Saved!'; setTimeout(()=>btn.textContent=orig, 1500); }
 }
 
-// ===== THERAPIST REPORTS =====
-let thD=new Date();
-function thNav(d){thD=new Date(thD.getFullYear(),thD.getMonth()+d,1);rThRep();}
-
-function rThRep(){
-  const ym=thD.getFullYear()+"-"+String(thD.getMonth()+1).padStart(2,"0");
-  document.getElementById("th-lbl").textContent=MNF[thD.getMonth()]+" "+thD.getFullYear();
-  const srch=(document.getElementById("th-s")||{}).value||"";
-  const empFilter=(document.getElementById("th-emp-filter")||{}).value||"";
-
-  // ── Populate filter dropdown live from Employees ──────────────────────────
-  const filterSel=document.getElementById("th-emp-filter");
-  if(filterSel){
-    const cur=filterSel.value;
-    filterSel.innerHTML='<option value="">All Therapists</option>'+
-      S.employees.filter(e=>e.status==="active")
-        .map(e=>`<option value="${e.id}">${e.name}${e.role?" — "+e.role:""}</option>`).join("");
-    filterSel.value=cur;
-  }
-
-  // ── Build employee lookup: id→emp and name→emp ────────────────────────────
-  const empMap={};
-  S.employees.forEach(e=>{ empMap[String(e.id)]=e; empMap[e.name]=e; });
-
-  // ── Collect service-level jobs for this month ─────────────────────────────
-  const jobs=[];
-  S.invoices.filter(inv=>gm(inv.date)===ym).forEach(inv=>{
-    (inv.services||[]).forEach(svc=>{
-      const thId=String(svc.therapistId||inv.therapistId||"");
-      const thName=svc.therapistName||inv.therapistName||"";
-      const emp=empMap[thId]||empMap[thName]||null;
-      jobs.push({
-        thId, thName:emp?emp.name:thName, thRole:emp?emp.role||"Therapist":"",
-        clientName:inv.clientName||"—", svcName:svc.name||"—",
-        price:svc.price||0, date:inv.date, payment:inv.payment,
-        invId:inv.id, invNum:inv.invNum||"#"+String(inv.id).slice(-4), status:inv.status
-      });
-    });
-  });
-
-  // ── Group by therapist ────────────────────────────────────────────────────
-  const byTh={};
-  jobs.forEach(j=>{
-    const key=j.thId||j.thName||"unassigned";
-    if(!byTh[key]) byTh[key]={name:j.thName||"Unassigned",role:j.thRole,jobs:[],revenue:0,clients:new Set()};
-    byTh[key].jobs.push(j);
-    byTh[key].revenue+=j.price;
-    byTh[key].clients.add(j.clientName);
-  });
-
-  // ── KPI summary ───────────────────────────────────────────────────────────
-  const entries=Object.values(byTh).sort((a,b)=>b.revenue-a.revenue);
-  const totalJobs=jobs.length;
-  const totalRev=jobs.reduce((s,j)=>s+j.price,0);
-  const active=entries.filter(e=>e.name!=="Unassigned").length;
-  const avg=active>0?(entries.filter(e=>e.name!=="Unassigned").reduce((s,e)=>s+e.revenue,0)/active):0;
-  document.getElementById("th-jobs").textContent=totalJobs;
-  document.getElementById("th-rev").textContent=fk(totalRev);
-  document.getElementById("th-active").textContent=active;
-  document.getElementById("th-avg").textContent=fk(avg);
-
-  // ── Therapist cards ───────────────────────────────────────────────────────
-  const grid=document.getElementById("th-cards");
-  if(!entries.length){
-    grid.innerHTML='<div class="em" style="grid-column:1/-1;padding:32px">No jobs assigned this month — create invoices with therapist assignments</div>';
-  } else {
-    const maxRev=Math.max(...entries.map(e=>e.revenue),1);
-    grid.innerHTML=entries.map(e=>{
-      const ini=e.name.split(" ").slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?";
-      const pct=Math.round((e.revenue/maxRev)*100);
-      return `<div class="crc">
-        <div class="crh"><div class="crav">${ini}</div>
-          <div><div class="crn">${e.name}</div><div class="crs">${e.role||"Therapist"}</div></div>
-        </div>
-        <div class="crst">
-          <div><div class="csl">JOBS</div><div class="csv vg">${e.jobs.length}</div></div>
-          <div><div class="csl">CLIENTS</div><div class="csv">${e.clients.size}</div></div>
-          <div><div class="csl">REVENUE</div><div class="csv vg">${fk(e.revenue)}</div></div>
-        </div>
-        <div class="crm"><span>${pct}% of top</span><span style="color:var(--gn);font-weight:600">${fk(e.revenue)}</span></div>
-        <div class="crp"><div class="crpf" style="width:${pct}%"></div></div>
-      </div>`;
-    }).join("");
-  }
-
-  // ── Detail table with employee filter + search ────────────────────────────
-  const filtered=jobs.filter(j=>{
-    const matchFilter=!empFilter||(j.thId===empFilter);
-    const matchSearch=!srch||(j.thName||"").toLowerCase().includes(srch.toLowerCase())||
-                              (j.clientName||"").toLowerCase().includes(srch.toLowerCase());
-    return matchFilter&&matchSearch;
-  });
-  const tb=document.getElementById("th-tb");
-  if(!filtered.length){
-    tb.innerHTML='<tr><td colspan="8" class="em">No records match</td></tr>';
-    return;
-  }
-  tb.innerHTML=filtered.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(j=>`<tr>
-    <td><strong>${j.thName||'<span style="color:var(--mu);font-style:italic">Unassigned</span>'}</strong></td>
-    <td style="font-size:12px;color:var(--mu)">${j.thRole||"—"}</td>
-    <td>${j.clientName}</td>
-    <td style="font-size:12px">${j.svcName}</td>
-    <td>${fd(j.date)}</td>
-    <td><span class="badge ${j.payment==="cash"?"bdgg":"bdbl"}">${j.payment||"—"}</span></td>
-    <td class="ag" style="text-align:right">${fk(j.price)}</td>
-    <td><span class="tl" onclick="viewInv(${j.invId})">${j.invNum}</span></td>
-  </tr>`).join("");
-}// ===== INVENTORY =====
+// ===== INVENTORY =====
 // S.inventory = { consumables: [], tools: [], hospitality: [] }
 if(!S.inventory) S.inventory={consumables:[],tools:[],hospitality:[]};
 
