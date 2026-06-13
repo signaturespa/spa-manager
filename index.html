@@ -141,6 +141,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 .pin-dot.shake{animation:pinShake .3s ease;}
 @keyframes pinShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -184,6 +185,7 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
         <button class="btn bts" style="font-size:12px" onclick="openPinSettings()" title="Branch PIN Settings">&#128274;</button>
         <button class="btn" style="background:#1C2B1E;color:#fff;border-color:#1C2B1E;font-size:12px" onclick="exportData()">&#11015; This Branch</button>
         <button class="btn" style="background:#2D4A2D;color:#fff;border-color:#2D4A2D;font-size:12px" onclick="exportAllBranches()">&#11015; All Branches</button>
+        <button class="btn" style="background:#1A6B3A;color:#fff;border-color:#1A6B3A;font-size:12px" onclick="exportExcel()">&#128202; Excel</button>
         <button class="btn btg" style="font-size:12px" onclick="importData()">&#11014; Import</button>
       </div>
     </div>
@@ -1999,7 +2001,104 @@ function exportData(){
   const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();
 }
-function exportAllBranches(){
+function exportExcel(){
+  if(typeof XLSX==="undefined"){alert("Excel library not loaded yet. Please wait a moment and try again.");return;}
+  // Save current branch first
+  sv();
+  loadAllBranches();
+  const wb=XLSX.utils.book_new();
+  const date=new Date().toLocaleDateString("en-GB");
+
+  BRANCHES.forEach(b=>{
+    const bd=BD[b.id]||_emptyState();
+
+    // ── Invoices sheet ──────────────────────────────────────────────────────
+    const invRows=[["Invoice #","Client Name","Client Phone","Services","Therapist","Amount (KWD)","Discount %","Date","Payment","Status","Notes"]];
+    (bd.invoices||[]).forEach(inv=>{
+      const svcs=(inv.services||[]).map(s=>s.name).join(", ");
+      invRows.push([inv.invNum||"",inv.clientName||"",inv.clientPhone||"",svcs,inv.therapistName||"",inv.amount||0,inv.discountPct||0,inv.date||"",inv.payment||"",inv.status||"",inv.notes||""]);
+    });
+    // Add totals row
+    const paidTotal=(bd.invoices||[]).filter(i=>i.status==="paid").reduce((s,i)=>s+(i.amount||0),0);
+    invRows.push([]);
+    invRows.push(["","","","","","TOTAL PAID:",paidTotal.toFixed(3)]);
+    const wsInv=XLSX.utils.aoa_to_sheet(invRows);
+    wsInv["!cols"]=[{wch:12},{wch:20},{wch:15},{wch:40},{wch:20},{wch:14},{wch:12},{wch:12},{wch:10},{wch:10},{wch:25}];
+    XLSX.utils.book_append_sheet(wb, wsInv, b.short+" - Invoices");
+
+    // ── Expenses sheet ──────────────────────────────────────────────────────
+    const expRows=[["Description","Category","Amount (KWD)","Date","Notes"]];
+    (bd.expenses||[]).forEach(e=>{expRows.push([e.description||"",EC[e.category]||e.category||"",e.amount||0,e.date||"",e.notes||""]);});
+    const expTotal=(bd.expenses||[]).reduce((s,e)=>s+(e.amount||0),0);
+    expRows.push([]);
+    expRows.push(["","TOTAL:",expTotal.toFixed(3)]);
+    const wsExp=XLSX.utils.aoa_to_sheet(expRows);
+    wsExp["!cols"]=[{wch:30},{wch:20},{wch:14},{wch:12},{wch:30}];
+    XLSX.utils.book_append_sheet(wb, wsExp, b.short+" - Expenses");
+
+    // ── Rent sheet ──────────────────────────────────────────────────────────
+    const rentRows=[["Description","Amount (KWD)","Month","Date","Status"]];
+    (bd.rent||[]).forEach(r=>{rentRows.push([r.description||"",r.amount||0,r.month||"",r.date||"",r.status||"paid"]);});
+    const rentPaid=(bd.rent||[]).filter(r=>r.status!=="pending").reduce((s,r)=>s+(r.amount||0),0);
+    const rentPend=(bd.rent||[]).filter(r=>r.status==="pending").reduce((s,r)=>s+(r.amount||0),0);
+    rentRows.push([]);
+    rentRows.push(["","PAID TOTAL:",rentPaid.toFixed(3)]);
+    rentRows.push(["","PENDING TOTAL:",rentPend.toFixed(3)]);
+    const wsRent=XLSX.utils.aoa_to_sheet(rentRows);
+    wsRent["!cols"]=[{wch:25},{wch:14},{wch:10},{wch:12},{wch:10}];
+    XLSX.utils.book_append_sheet(wb, wsRent, b.short+" - Rent");
+
+    // ── Salaries sheet ──────────────────────────────────────────────────────
+    const salRows=[["Employee","Base Amount (KWD)","OT Hours","Hourly Rate","OT Amount","Deductions","Total Paid","Month","Date","Notes"]];
+    (bd.salaries||[]).forEach(s=>{
+      const hrs=s.otHours!=null?s.otHours:(s.otDays||0);
+      const hrRate=s.hourlyRate!=null?s.hourlyRate:((s.base||0)/30/8);
+      salRows.push([s.empName||"",s.base||0,hrs,hrRate.toFixed(3),s.otAmt||0,s.deductions||0,s.amount||0,s.month||"",s.date||"",s.notes||""]);
+    });
+    const salTotal=(bd.salaries||[]).reduce((s,r)=>s+(r.amount||0),0);
+    salRows.push([]);
+    salRows.push(["","","","","","TOTAL:",salTotal.toFixed(3)]);
+    const wsSal=XLSX.utils.aoa_to_sheet(salRows);
+    wsSal["!cols"]=[{wch:20},{wch:16},{wch:10},{wch:13},{wch:13},{wch:13},{wch:13},{wch:10},{wch:12},{wch:25}];
+    XLSX.utils.book_append_sheet(wb, wsSal, b.short+" - Salaries");
+
+    // ── Employees sheet ─────────────────────────────────────────────────────
+    const empRows=[["Name","Role","Civil ID","Phone","Hire Date","Base Salary (KWD)","Daily Rate","Hourly Rate","Status"]];
+    (bd.employees||[]).forEach(e=>{
+      const daily=(e.salary||0)/30;
+      const hourly=daily/8;
+      empRows.push([e.name||"",e.role||"",e.civil||"",e.phone||"",e.hire||"",e.salary||0,daily.toFixed(3),hourly.toFixed(3),e.status||""]);
+    });
+    const wsEmp=XLSX.utils.aoa_to_sheet(empRows);
+    wsEmp["!cols"]=[{wch:20},{wch:15},{wch:15},{wch:15},{wch:12},{wch:16},{wch:12},{wch:12},{wch:10}];
+    XLSX.utils.book_append_sheet(wb, wsEmp, b.short+" - Employees");
+  });
+
+  // ── Combined Summary sheet ──────────────────────────────────────────────────
+  const sumRows=[["Branch","Total Income (KWD)","Total Expenses (KWD)","Total Rent (KWD)","Total Salaries (KWD)","Net Profit (KWD)","Total Invoices","Pending Invoices"]];
+  let totInc=0,totExp=0,totRent=0,totSal=0;
+  BRANCHES.forEach(b=>{
+    const bd=BD[b.id]||_emptyState();
+    const inc=(bd.invoices||[]).filter(i=>i.status==="paid").reduce((s,i)=>s+(i.amount||0),0);
+    const exp=(bd.expenses||[]).reduce((s,e)=>s+(e.amount||0),0);
+    const rent=(bd.rent||[]).filter(r=>r.status!=="pending").reduce((s,r)=>s+(r.amount||0),0);
+    const sal=(bd.salaries||[]).reduce((s,r)=>s+(r.amount||0),0);
+    const profit=inc-exp-rent-sal;
+    const pending=(bd.invoices||[]).filter(i=>i.status!=="paid").length;
+    sumRows.push([b.name,inc.toFixed(3),exp.toFixed(3),rent.toFixed(3),sal.toFixed(3),profit.toFixed(3),(bd.invoices||[]).length,pending]);
+    totInc+=inc;totExp+=exp;totRent+=rent;totSal+=sal;
+  });
+  sumRows.push([]);
+  sumRows.push(["ALL BRANCHES",totInc.toFixed(3),totExp.toFixed(3),totRent.toFixed(3),totSal.toFixed(3),(totInc-totExp-totRent-totSal).toFixed(3)]);
+  const wsSum=XLSX.utils.aoa_to_sheet(sumRows);
+  wsSum["!cols"]=[{wch:25},{wch:18},{wch:18},{wch:16},{wch:18},{wch:16},{wch:15},{wch:17}];
+  XLSX.utils.book_append_sheet(wb, wsSum, "Summary - All Branches");
+
+  // ── Export ──────────────────────────────────────────────────────────────────
+  const fname="signature-spa-export-"+new Date().toISOString().split("T")[0]+".xlsx";
+  XLSX.writeFile(wb, fname);
+}
+
   // Save current branch first
   sv();
   // Load all branches fresh and package them
