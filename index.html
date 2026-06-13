@@ -2099,6 +2099,16 @@ function exportExcel(){
   XLSX.writeFile(wb, fname);
 }
 
+function exportAllBranches(){
+  // Save current branch first
+  sv();
+  loadAllBranches();
+  const pkg={version:2,exported:new Date().toISOString(),branches:{}};
+  BRANCHES.forEach(b=>{ pkg.branches[b.id]=BD[b.id]||_emptyState(); });
+  const blob=new Blob([JSON.stringify(pkg,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="signature-spa-all-branches-backup.json";a.click();
+}
+
   // Save current branch first
   sv();
   // Load all branches fresh and package them
