@@ -2108,16 +2108,6 @@ function exportAllBranches(){
   const blob=new Blob([JSON.stringify(pkg,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="signature-spa-all-branches-backup.json";a.click();
 }
-
-  // Save current branch first
-  sv();
-  // Load all branches fresh and package them
-  loadAllBranches();
-  const pkg={version:2,exported:new Date().toISOString(),branches:{}};
-  BRANCHES.forEach(b=>{ pkg.branches[b.id]=BD[b.id]||_emptyState(); });
-  const blob=new Blob([JSON.stringify(pkg,null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="signature-spa-all-branches-backup.json";a.click();
-}
 function importData(){
   const inp=document.createElement("input");inp.type="file";inp.accept=".json";
   inp.onchange=e=>{
