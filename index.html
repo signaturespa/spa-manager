@@ -491,9 +491,23 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 
 <!-- EXPENSES -->
 <div class="page" id="page-expenses">
-  <div class="ph"><div class="phl"><h2>Expenses</h2><p>Shared &mdash; not for specific client</p></div><button class="btn btg" onclick="openM('exp-m')">+ Add expense</button></div>
-  <div class="sw"><span class="sic">&#128269;</span><input class="si" placeholder="Search expenses..." id="exp-s" oninput="rExp()"></div>
-  <div class="tc"><div class="tw"><table><thead><tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="exp-tb"></tbody></table></div></div>
+  <div class="ph"><div class="phl"><h2>Expenses</h2><p>Shared &mdash; not for specific client</p></div><button class="btn btg" onclick="openAddExp()">+ Add expense</button></div>
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+    <div class="sw" style="margin:0;flex:1;min-width:180px"><span class="sic">&#128269;</span><input class="si" placeholder="Search expenses..." id="exp-s" oninput="rExp()"></div>
+    <select id="exp-cat-f" onchange="rExp()" style="padding:7px 12px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px">
+      <option value="">All Categories</option>
+      <option value="consumables">Consumables</option>
+      <option value="tools">Tools</option>
+      <option value="machines">Machines</option>
+      <option value="laundry">Laundry</option>
+      <option value="maintenance">Maintenance</option>
+      <option value="delivery">Delivery &amp; Transportation</option>
+      <option value="other">Other</option>
+    </select>
+    <input type="month" id="exp-month-f" onchange="rExp()" style="padding:7px 10px;border:.5px solid var(--bd2);border-radius:var(--rs);font-size:13px" title="Filter by month">
+    <button class="btn bts" onclick="document.getElementById('exp-cat-f').value='';document.getElementById('exp-month-f').value='';document.getElementById('exp-s').value='';rExp()" style="font-size:12px">&#10005; Clear</button>
+  </div>
+  <div class="tc"><div class="tw"><table><thead><tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th>Notes</th><th></th></tr></thead><tbody id="exp-tb"></tbody></table></div></div>
 </div>
 
 <!-- CLIENT REPORTS -->
@@ -680,7 +694,8 @@ tr:last-child td{border-bottom:none;} tr:hover td{background:#FAFAF8;}
 </div>
 <div class="mf"><button class="btn" onclick="closeM('sal-m')">Cancel</button><button class="btn btg" onclick="saveSal()">Save</button></div></div></div>
 
-<div class="mo" id="exp-m"><div class="md" style="width:440px"><div class="mh"><h3>&#128228; Add expense</h3><button class="mx" onclick="closeM('exp-m')">&#10005;</button></div>
+<div class="mo" id="exp-m"><div class="md" style="width:440px"><div class="mh"><h3 id="exp-m-title">&#128228; Add expense</h3><button class="mx" onclick="closeM('exp-m')">&#10005;</button></div>
+<input type="hidden" id="ex-id">
 <div class="fg"><div class="full"><label>Description *</label><input id="ex-d" placeholder="Expense description"></div><div><label>Amount (KWD) *</label><input type="number" id="ex-a" step="0.001" min="0"></div><div><label>Date</label><input type="date" id="ex-dt"></div><div><label>Category</label><select id="ex-c"><option value="consumables">Consumables</option><option value="tools">Tools</option><option value="machines">Machines</option><option value="laundry">Laundry</option><option value="maintenance">Maintenance</option><option value="delivery">Delivery &amp; Transportation</option><option value="other">Other</option></select></div><div class="full"><label>Notes</label><input id="ex-n" placeholder="Optional"></div></div>
 <div class="mf"><button class="btn" onclick="closeM('exp-m')">Cancel</button><button class="btn btg" onclick="saveExp()">Save</button></div></div></div>
 
@@ -1505,18 +1520,62 @@ function rSH(){
   }).join("");
   tb.querySelectorAll(".td2").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i);cfDel(()=>{S.salaries=S.salaries.filter(x=>x.id!==rows[i].id);sv();rSH();});});
 }
+function openAddExp(){
+  document.getElementById("exp-m-title").innerHTML="&#128228; Add expense";
+  document.getElementById("ex-id").value="";
+  document.getElementById("ex-d").value="";
+  document.getElementById("ex-a").value="";
+  document.getElementById("ex-dt").value=td();
+  document.getElementById("ex-c").value="consumables";
+  document.getElementById("ex-n").value="";
+  openM("exp-m");
+}
+function openEditExp(id){
+  const e=S.expenses.find(e=>e.id===id);
+  if(!e)return;
+  document.getElementById("exp-m-title").innerHTML="&#9999;&#65039; Edit expense";
+  document.getElementById("ex-id").value=id;
+  document.getElementById("ex-d").value=e.description||"";
+  document.getElementById("ex-a").value=e.amount||"";
+  document.getElementById("ex-dt").value=e.date||"";
+  document.getElementById("ex-c").value=e.category||"consumables";
+  document.getElementById("ex-n").value=e.notes||"";
+  openM("exp-m");
+}
 function saveExp(){
   const desc=document.getElementById("ex-d").value.trim(),amount=parseFloat(document.getElementById("ex-a").value)||0;
   if(!desc||amount<=0)return alert("Description and amount required.");
-  S.expenses.push({id:Date.now(),description:desc,amount,date:document.getElementById("ex-dt").value,category:document.getElementById("ex-c").value,notes:document.getElementById("ex-n").value});
-  sv();rExp();closeM("exp-m");document.getElementById("ex-d").value="";document.getElementById("ex-a").value="";
+  const editId=document.getElementById("ex-id").value;
+  const data={description:desc,amount,date:document.getElementById("ex-dt").value,category:document.getElementById("ex-c").value,notes:document.getElementById("ex-n").value};
+  if(editId){
+    const idx=S.expenses.findIndex(e=>e.id===parseInt(editId));
+    if(idx>=0) S.expenses[idx]={...S.expenses[idx],...data};
+  } else {
+    S.expenses.push({id:Date.now(),...data});
+  }
+  sv();rExp();closeM("exp-m");document.getElementById("ex-id").value="";document.getElementById("ex-d").value="";document.getElementById("ex-a").value="";
 }
 function rExp(){
   const srch=(document.getElementById("exp-s")||{}).value||"";
-  const rows=S.expenses.filter(e=>!srch||e.description.toLowerCase().includes(srch.toLowerCase())).slice().reverse();
+  const catF=(document.getElementById("exp-cat-f")||{}).value||"";
+  const monF=(document.getElementById("exp-month-f")||{}).value||"";
+  const rows=S.expenses.filter(e=>{
+    const matchS=!srch||e.description.toLowerCase().includes(srch.toLowerCase())||(e.notes||"").toLowerCase().includes(srch.toLowerCase());
+    const matchC=!catF||e.category===catF;
+    const matchM=!monF||gm(e.date||"")===monF;
+    return matchS&&matchC&&matchM;
+  }).slice().reverse();
   const tb=document.getElementById("exp-tb");
-  if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="em">No expenses</td></tr>';return;}
-  tb.innerHTML=rows.map((e,i)=>`<tr><td><strong>${e.description}</strong></td><td><span class="badge bdgr">${EC[e.category]||e.category}</span></td><td class="arr">${fk(e.amount)}</td><td>${fd(e.date)}</td><td><span class="td2" data-i="${i}">Del</span></td></tr>`).join("");
+  if(!rows.length){tb.innerHTML='<tr><td colspan="6" class="em">No expenses</td></tr>';return;}
+  tb.innerHTML=rows.map((e,i)=>`<tr>
+    <td><strong>${e.description}</strong></td>
+    <td><span class="badge bdgr">${EC[e.category]||e.category}</span></td>
+    <td class="arr">${fk(e.amount)}</td>
+    <td>${fd(e.date)}</td>
+    <td style="font-size:12px;color:var(--mu);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.notes||"—"}</td>
+    <td style="display:flex;gap:6px"><span class="tl" data-ei="${e.id}">Edit</span><span class="td2" data-i="${i}">Del</span></td>
+  </tr>`).join("");
+  tb.querySelectorAll("[data-ei]").forEach(el=>el.onclick=()=>openEditExp(parseInt(el.dataset.ei)));
   tb.querySelectorAll(".td2").forEach(el=>el.onclick=()=>{const i=parseInt(el.dataset.i);cfDel(()=>{S.expenses=S.expenses.filter(x=>x.id!==rows[i].id);sv();rExp();});});
 }
 let isvRows=[];
